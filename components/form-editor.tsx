@@ -159,11 +159,16 @@ function SortablePageTab({
 }
 
 export function FormEditor() {
+  const [isMounted, setIsMounted] = React.useState(false)
   const [activeFormField, setActiveFormField] =
     React.useState<FormField | null>(null)
   const [activePageDragId, setActivePageDragId] = React.useState<string | null>(
     null
   )
+
+  React.useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -276,74 +281,120 @@ export function FormEditor() {
   return (
     <div className="flex h-full flex-col">
       {/* Page Tabs */}
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handlePageDragEnd}
-        onDragStart={handlePageDragStart}
-      >
+      {isMounted ? (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handlePageDragEnd}
+          onDragStart={handlePageDragStart}
+        >
+          <div className="flex items-center gap-2 overflow-x-auto border-b p-2">
+            <SortableContext
+              items={pages.map((p) => p.id)}
+              strategy={horizontalListSortingStrategy}
+            >
+              {pages.map((page, index) => (
+                <SortablePageTab
+                  key={page.id}
+                  page={page}
+                  index={index}
+                  isActive={activePageId === page.id}
+                  canDelete={pages.length > 1}
+                  onSelect={() => setActivePage(page.id)}
+                  onDelete={() => deletePage(page.id)}
+                  onRename={(title) => updatePageTitle(page.id, title)}
+                />
+              ))}
+            </SortableContext>
+            <Button variant="outline" size="sm" onClick={addPage}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Page
+            </Button>
+          </div>
+          <DragOverlay>
+            {activePageDragId && (
+              <div className="flex items-center gap-1 rounded-md border bg-background px-2 py-1.5 text-sm opacity-80 shadow-lg">
+                <GripVertical className="h-3 w-3 text-muted-foreground" />
+                <span>
+                  {pages.find((p) => p.id === activePageDragId)?.title ||
+                    `Page ${pages.findIndex((p) => p.id === activePageDragId) + 1}`}
+                </span>
+              </div>
+            )}
+          </DragOverlay>
+        </DndContext>
+      ) : (
         <div className="flex items-center gap-2 overflow-x-auto border-b p-2">
-          <SortableContext
-            items={pages.map((p) => p.id)}
-            strategy={horizontalListSortingStrategy}
-          >
-            {pages.map((page, index) => (
-              <SortablePageTab
-                key={page.id}
-                page={page}
-                index={index}
-                isActive={activePageId === page.id}
-                canDelete={pages.length > 1}
-                onSelect={() => setActivePage(page.id)}
-                onDelete={() => deletePage(page.id)}
-                onRename={(title) => updatePageTitle(page.id, title)}
-              />
-            ))}
-          </SortableContext>
-          <Button variant="outline" size="sm" onClick={addPage}>
+          {pages.map((page, index) => (
+            <div
+              key={page.id}
+              className={cn(
+                "flex cursor-pointer items-center gap-1 rounded-md border px-2 py-1.5 text-sm hover:bg-muted/50",
+                activePageId === page.id && "bg-muted font-medium"
+              )}
+            >
+              <GripVertical className="h-3 w-3 text-muted-foreground" />
+              <span className="max-w-[120px] truncate">
+                {page.title || `Page ${index + 1}`}
+              </span>
+            </div>
+          ))}
+          <Button variant="outline" size="sm">
             <Plus className="mr-2 h-4 w-4" />
             Add Page
           </Button>
         </div>
-        <DragOverlay>
-          {activePageDragId && (
-            <div className="flex items-center gap-1 rounded-md border bg-background px-2 py-1.5 text-sm opacity-80 shadow-lg">
-              <GripVertical className="h-3 w-3 text-muted-foreground" />
-              <span>
-                {pages.find((p) => p.id === activePageDragId)?.title ||
-                  `Page ${pages.findIndex((p) => p.id === activePageDragId) + 1}`}
-              </span>
+      )}
+
+      {isMounted ? (
+        <DndContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
+          {currentFields.length !== 0 ? (
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="mx-auto flex w-3/4 flex-col gap-6 p-4"
+              >
+                <SortableContext
+                  items={currentFields.map((formField) => formField.name)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {currentFields.map((formField) => (
+                    <SortableField
+                      formField={formField}
+                      form={form}
+                      key={formField.name}
+                    />
+                  ))}
+                </SortableContext>
+                <DragOverlay className="bg-background">
+                  {activeFormField ? (
+                    <Field formField={activeFormField} />
+                  ) : (
+                    <></>
+                  )}
+                </DragOverlay>
+                <Button type="submit">Submit (Current Page)</Button>
+              </form>
+            </Form>
+          ) : (
+            <div className="grid place-items-center p-12">
+              <h3 className="text-2xl font-semibold">No Fields on this page</h3>
+              <p className="text-muted-foreground">
+                Select fields from the sidebar...
+              </p>
             </div>
           )}
-        </DragOverlay>
-      </DndContext>
-
-      <DndContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
-        {currentFields.length !== 0 ? (
+        </DndContext>
+      ) : (
+        currentFields.length !== 0 ? (
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
               className="mx-auto flex w-3/4 flex-col gap-6 p-4"
             >
-              <SortableContext
-                items={currentFields.map((formField) => formField.name)}
-                strategy={verticalListSortingStrategy}
-              >
-                {currentFields.map((formField) => (
-                  <SortableField
-                    formField={formField}
-                    form={form}
-                    key={formField.name}
-                  />
-                ))}
-              </SortableContext>
-              <DragOverlay className="bg-background">
-                {activeFormField ? (
-                  <Field formField={activeFormField} />
-                ) : (
-                  <></>
-                )}
-              </DragOverlay>
+              {currentFields.map((formField) => (
+                <Field formField={formField} key={formField.name} />
+              ))}
               <Button type="submit">Submit (Current Page)</Button>
             </form>
           </Form>
@@ -354,8 +405,8 @@ export function FormEditor() {
               Select fields from the sidebar...
             </p>
           </div>
-        )}
-      </DndContext>
+        )
+      )}
     </div>
   )
 }
