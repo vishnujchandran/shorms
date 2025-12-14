@@ -1,149 +1,132 @@
 <a id="readme-top"></a>
 
-<h3 align="center">Shorms (Shadcn Forms) Builder</h3>
+<h3 align="center">Shorms - Shadcn Forms Builder</h3>
 
 <p align="center">
-  Advanced Multi-Page Form Builder for Shadcn/ui & React Hook Form
+  Multi-Page Form Builder for Shadcn/ui & React Hook Form
   <br />
-  <br />
-  <a href="https://forms.ouassim.tech" target="_blank">Demo</a>
-  ·
-  <a href="https://github.com/strlrd-29/shadcn-ui-form-builder/issues/new">Report Bug</a>
-  ·
-  <a href="https://github.com/strlrd-29/shadcn-ui-form-builder/issues/new">Request Feature</a>
+  Build, preview, and export production-ready forms locally
 </p>
 
 ## Table of Contents
 
-- [Table of Contents](#table-of-contents)
 - [About The Project](#about-the-project)
+- [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [License](#license)
-- [Contact](#contact)
-- [Acknowledgments](#acknowledgments)
-
-<!-- ABOUT THE PROJECT -->
 
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://forms.ouassim.tech)
+**Shorms** is a local-first form builder built on [shadcn/ui](https://ui.shadcn.com) and [React Hook Form](https://www.react-hook-form.com/). It focuses on rapid form development with multi-page support, advanced validation, and instant code generation.
 
-**Shorms** is a powerful WYSIWYG form builder built on top of [shadcn/ui](https://ui.shadcn.com) and [React Hook Form](https://www.react-hook-form.com/). It goes beyond simple single-page forms by offering a complete solution for complex data collection needs.
-
-**Key Features:**
-
-*   **Multi-Page Support:** Create complex wizards and multi-step forms with ease.
-*   **Advanced Validation:** Configure Regex patterns, required fields, and custom error messages directly in the UI.
-*   **Instant Code Generation:** Get production-ready React code (zod + react-hook-form) that includes state management for multi-page navigation.
-*   **Live Preview:** Test your form logic instantly with the built-in "Form Runner".
-*   **Import / Export:** Save your form schema to JSON and restore it later.
-*   **Shadcn CLI Integration:** Add the generated form directly to your project via CLI.
+Everything runs locally - no database, no backend, no deployment needed. Build your forms, export them as JSON or React components, and use them in your projects.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- GETTING STARTED -->
+## Features
+
+- ✅ **Multi-Page Support** - Create complex wizards and multi-step forms
+- ✅ **Advanced Validation** - Configure regex patterns, required fields, and custom error messages
+- ✅ **Live Preview** - Test your form logic instantly with the built-in Form Runner
+- ✅ **Code Generation** - Export production-ready React code with Zod validation and react-hook-form
+- ✅ **JSON Import/Export** - Save and restore form schemas locally
+- ✅ **Drag-and-Drop** - Reorder fields within pages
+- ✅ **Local State** - All data persists in localStorage, no backend required
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Installation
 
-1. Clone the repo
+1. Clone the repository
 
    ```sh
-   git clone https://github.com/strlrd-29/shadcn-ui-form-builder
+   git clone https://github.com/yourusername/shorms
    ```
 
-2. Navigate to project dir
+2. Navigate to project directory
 
    ```sh
-   cd shadcn-ui-form-builder
+   cd shorms
    ```
 
-3. Install NPM packages
+3. Install dependencies
 
    ```sh
-   pnpm install
+   npm install --legacy-peer-deps
    ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- USAGE EXAMPLES -->
 
 ## Usage
 
-Start the dev server
+Start the development server:
 
 ```sh
-pnpm dev
+npm run dev
 ```
 
-Open your browser and navigate to [http://localhost:3000](http://localhost:3000) to see the application in action.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### Workflow
+
+1. **Build** - Drag fields from the sidebar to create your form
+2. **Configure** - Click fields to set validation rules and properties
+3. **Preview** - Test the form with the Preview button
+4. **Export** - Download as JSON or copy the generated React code
+5. **Import** - Restore forms from previously exported JSON files
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- ROADMAP -->
-
 ## Roadmap
 
+### Completed
 - [x] Multi-Page / Wizard Form Support
 - [x] Advanced Validation (Regex, Custom Messages)
 - [x] JSON Import / Export
 - [x] Live Form Preview (Runner)
+- [x] Code Generation with Multi-Page Support
+
+### Planned
 - [ ] Drag-and-drop page reordering
 - [ ] Undo/Redo functionality
-- [ ] Add More fields
+- [ ] Additional field types:
   - [ ] File input
   - [ ] OTP input
   - [ ] Multi select
   - [ ] Phone input
 - [ ] Form Templates
+- [ ] Theme customization for generated forms
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- CONTRIBUTING -->
 
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
-Don't forget to give the project a star! Thanks again!
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 1. Fork the Project
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+3. Commit your Changes (`git commit -m 'feat: add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-<!-- LICENSE -->
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+Distributed under the MIT License.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- CONTACT -->
+## Built With
 
-## Contact
-
-Ghribi Ouassim Abdelmalek - [@strlrd29](https://twitter.com/strlrd29) - <me@ouassim.tech>
-
-Project Link: [forms.ouassim.tech](https://forms.ouassim.tech)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- ACKNOWLEDGMENTS -->
-
-## Acknowledgments
-
-- [hasanharman/form-builder](https://github.com/hasanharman/form-builder)
-- [KryptXBSA/FormBuilder](https://github.com/KryptXBSA/FormBuilder)
+- [Next.js](https://nextjs.org/)
 - [shadcn/ui](https://ui.shadcn.com/)
 - [React Hook Form](https://www.react-hook-form.com/)
-- [OpnForm](https://opnform.com/)
+- [Zod](https://zod.dev/)
+- [Zustand](https://zustand-demo.pmnd.rs/)
+- [dnd-kit](https://dndkit.com/)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-[product-screenshot]: public/screenshot.png

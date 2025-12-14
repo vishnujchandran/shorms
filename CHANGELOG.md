@@ -1,23 +1,49 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to Shorms will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Removed
+- Database functionality (Turso/libSQL, Drizzle ORM)
+- Form sharing via API registry
+- CLI integration component
+- All backend dependencies
+
+## [0.1.0] - 2025-12-15
+
 ### Added
-- **Multi-Page Code Generation**: The "Code" tab now generates React code that fully implements the multi-page logic, including state management and navigation, if multiple pages are present.
-- **Form Preview**: Users can now preview the multi-page form behavior directly within the builder.
-- **Form Runner**: Implemented the core engine to render and navigate multi-page forms.
-- **JSON Import/Export**: Users can now export their form schema to a JSON file and import it back to restore or share forms.
-- **Advanced Validation**: Added support for configuring validation rules per field.
-    - **Required Fields**: Users can mark fields as required (enforced via Zod schema).
-    - **Regex Patterns**: Users can define custom regex patterns for text inputs.
-    - **Custom Error Messages**: Users can provide custom error messages for validation failures.
-- **Pagination Support**: The form builder now supports multiple pages. Users can add, delete, and switch between pages.
-- **Rebranding**: Project renamed to "Shorms" (Shadcn Forms).
+- **Multi-Page Forms**: Create wizards with multiple pages
+- **Page Management**: Add, delete, rename, and navigate between pages
+- **Advanced Validation**:
+  - Regex pattern validation for text fields
+  - Custom error messages per field
+  - Required field enforcement
+- **Form Preview**: Live preview mode with Form Runner component
+- **JSON Import/Export**: Save and restore form schemas locally
+- **Code Generation**:
+  - Single-page form components
+  - Multi-page form components with navigation logic
+  - Zod schema generation with validation rules
+- **Form Runner**: Standalone component for rendering multi-page forms
+  - Step-by-step navigation
+  - Per-page validation
+  - Progress indicator
+- **Validation Settings**: UI for configuring field validation rules
+- **Local Storage**: Automatic persistence of form state
 
 ### Changed
-- Refactored `FormState` to use `pages: FormPage[]` instead of flat `formFields`.
-- Updated `stores/form.ts` to handle page management.
-- Updated `FormEditor` to render fields for the active page and provide page management controls.
-- Updated `CodeBlock` and `Cli` to flatten fields from all pages for compatibility with existing generators.
+- Refactored data model from flat field list to paginated structure
+- Updated all components to support multi-page architecture
+- Switched package manager from pnpm to npm
+
+### Technical
+- Built with Next.js 14, React 18, TypeScript 5
+- Form state management with Zustand + Immer
+- Drag-and-drop with dnd-kit
+- UI components from shadcn/ui
+- Form validation with Zod
+- Form handling with React Hook Form

@@ -1,7 +1,3 @@
-import Link from "next/link"
-
-import { cn } from "@/lib/utils"
-import { buttonVariants } from "@/components/ui/button"
 import {
   SidebarInset,
   SidebarProvider,
@@ -12,7 +8,6 @@ import { CodeBlock } from "@/components/code-block"
 import { EditFormField } from "@/components/edit-form-field"
 import { FormEditor } from "@/components/form-editor"
 import { HeaderActions } from "@/components/header-actions"
-import { Icons } from "@/components/icons"
 import { ModeToggle } from "@/components/mode-toggle"
 import { SidebarLeft } from "@/components/sidebar-left"
 
@@ -26,40 +21,6 @@ export default async function Home() {
             <SidebarTrigger />
           </div>
           <div className="flex items-center gap-1">
-            <Link
-              href="https://github.com/strlrd-29/shadcn-ui-form-builder"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <div
-                className={cn(
-                  buttonVariants({
-                    variant: "ghost",
-                  }),
-                  "h-8 w-8 px-0"
-                )}
-              >
-                <Icons.gitHub className="h-4 w-4" />
-                <span className="sr-only">GitHub</span>
-              </div>
-            </Link>
-            <Link
-              href="https://x.com/strlrd29"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <div
-                className={cn(
-                  buttonVariants({
-                    variant: "ghost",
-                  }),
-                  "h-8 w-8 px-0"
-                )}
-              >
-                <Icons.twitter className="h-3 w-3 fill-current" />
-                <span className="sr-only">Twitter</span>
-              </div>
-            </Link>
             <ModeToggle />
           </div>
         </header>
@@ -95,24 +56,7 @@ export default async function Home() {
         </Tabs>
         <EditFormField />
         <footer className="mb-4 mt-8 text-center text-muted-foreground">
-          <p>
-            Built by{" "}
-            <Link
-              target="_blank"
-              href="https://www.ouassim.tech"
-              className="underline"
-            >
-              ouassim.
-            </Link>{" "}
-            The source code is availabe on{" "}
-            <Link
-              target="_blank"
-              href="https://github.com/strlrd-29/shadcn-ui-form-builder"
-              className="underline"
-            >
-              GitHub.
-            </Link>
-          </p>
+          <p>Shorms - Local-first form builder for shadcn/ui</p>
         </footer>
       </SidebarInset>
     </SidebarProvider>
