@@ -24,15 +24,12 @@ import { FormState } from "@/types/form-store"
 
 const selector = (state: FormState) => ({
   addFormField: state.addFormField,
-  setIsEditFormFieldOpen: state.setIsEditFormFieldOpen,
-  setSelectedFormField: state.setSelectedFormField,
 })
 
 export function SidebarLeft({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
-  const { addFormField, setSelectedFormField, setIsEditFormFieldOpen } =
-    useFormStore(useShallow(selector))
+  const { addFormField } = useFormStore(useShallow(selector))
 
   return (
     <Sidebar className="border-r-0" {...props}>
@@ -60,8 +57,6 @@ export function SidebarLeft({
                         name: `${field.name.toLowerCase().replaceAll(" ", "_")}_${Math.random().toString().slice(-10)}`,
                       }
                       addFormField(newFormField)
-                      setSelectedFormField(newFormField.id)
-                      setIsEditFormFieldOpen(true)
                     }}
                   >
                     <field.Icon />

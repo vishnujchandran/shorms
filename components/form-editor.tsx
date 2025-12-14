@@ -3,18 +3,25 @@
 import * as React from "react"
 import { useFormStore } from "@/stores/form"
 import {
+  closestCenter,
   DndContext,
   DragEndEvent,
   DragOverlay,
   DragStartEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
 } from "@dnd-kit/core"
 import {
   arrayMove,
+  horizontalListSortingStrategy,
   SortableContext,
+  useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Plus, Trash2 } from "lucide-react"
+import { GripVertical, Plus, Trash2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { useShallow } from "zustand/shallow"
@@ -24,12 +31,6 @@ import { cn } from "@/lib/utils"
 import { toast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
 import { Field } from "@/components/field"
 import { SortableField } from "@/components/sortable-field"
 
@@ -46,9 +47,131 @@ const selector = (state: FormState) => ({
   updatePageTitle: state.updatePageTitle,
 })
 
+interface SortablePageTabProps {
+  page: { id: string; title?: string; fields: FormField[] }
+  index: number
+  isActive: boolean
+  canDelete: boolean
+  onSelect: () => void
+  onDelete: () => void
+  onRename: (title: string) => void
+}
+
+function SortablePageTab({
+  page,
+  index,
+  isActive,
+  canDelete,
+  onSelect,
+  onDelete,
+  onRename,
+}: SortablePageTabProps) {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: page.id })
+  const [isEditing, setIsEditing] = React.useState(false)
+  const [editValue, setEditValue] = React.useState(page.title || "")
+  const inputRef = React.useRef<HTMLInputElement>(null)
+
+  React.useEffect(() => {
+    if (isEditing) {
+      inputRef.current?.focus()
+      inputRef.current?.select()
+    }
+  }, [isEditing])
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  }
+
+  const handleSave = () => {
+    if (editValue.trim()) {
+      onRename(editValue.trim())
+    }
+    setIsEditing(false)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSave()
+    } else if (e.key === "Escape") {
+      setEditValue(page.title || "")
+      setIsEditing(false)
+    }
+  }
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        "flex cursor-pointer items-center gap-1 rounded-md border px-2 py-1.5 text-sm hover:bg-muted/50",
+        isActive && "bg-muted font-medium"
+      )}
+      onClick={onSelect}
+    >
+      <div
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing"
+      >
+        <GripVertical className="h-3 w-3 text-muted-foreground" />
+      </div>
+
+      {isEditing ? (
+        <input
+          ref={inputRef}
+          type="text"
+          value={editValue}
+          onChange={(e) => setEditValue(e.target.value)}
+          onBlur={handleSave}
+          onKeyDown={handleKeyDown}
+          onClick={(e) => e.stopPropagation()}
+          className="min-w-[60px] max-w-[120px] bg-transparent px-1 outline-none"
+        />
+      ) : (
+        <span
+          className="max-w-[120px] truncate"
+          onDoubleClick={(e) => {
+            e.stopPropagation()
+            setIsEditing(true)
+          }}
+        >
+          {page.title || `Page ${index + 1}`}
+        </span>
+      )}
+
+      {canDelete && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="ml-1 h-4 w-4 hover:text-destructive"
+          onClick={(e) => {
+            e.stopPropagation()
+            onDelete()
+          }}
+        >
+          <Trash2 className="h-3 w-3" />
+        </Button>
+      )}
+    </div>
+  )
+}
+
 export function FormEditor() {
   const [activeFormField, setActiveFormField] =
     React.useState<FormField | null>(null)
+  const [activePageDragId, setActivePageDragId] = React.useState<string | null>(
+    null
+  )
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  )
 
   const {
     pages,
@@ -134,54 +257,66 @@ export function FormEditor() {
     }
   }
 
+  const handlePageDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+
+    if (over && active.id !== over.id) {
+      const oldIndex = pages.findIndex((p) => p.id === active.id)
+      const newIndex = pages.findIndex((p) => p.id === over.id)
+      const newPages = arrayMove(pages, oldIndex, newIndex)
+      setPages(newPages)
+    }
+    setActivePageDragId(null)
+  }
+
+  const handlePageDragStart = (event: DragStartEvent) => {
+    setActivePageDragId(event.active.id as string)
+  }
+
   return (
     <div className="flex h-full flex-col">
       {/* Page Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto border-b p-2">
-        {pages.map((page, index) => (
-          <div
-            key={page.id}
-            className={cn(
-              "flex cursor-pointer items-center gap-2 rounded-md border px-3 py-1.5 text-sm hover:bg-muted/50",
-              activePageId === page.id && "bg-muted font-medium"
-            )}
-            onClick={() => setActivePage(page.id)}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handlePageDragEnd}
+        onDragStart={handlePageDragStart}
+      >
+        <div className="flex items-center gap-2 overflow-x-auto border-b p-2">
+          <SortableContext
+            items={pages.map((p) => p.id)}
+            strategy={horizontalListSortingStrategy}
           >
-            <Popover>
-              <PopoverTrigger asChild onClick={(e) => e.stopPropagation()}>
-                <span className="max-w-[100px] cursor-text truncate hover:underline">
-                  {page.title || `Page ${index + 1}`}
-                </span>
-              </PopoverTrigger>
-              <PopoverContent className="w-60 p-2">
-                <Input
-                  value={page.title || ""}
-                  placeholder={`Page ${index + 1}`}
-                  onChange={(e) => updatePageTitle(page.id, e.target.value)}
-                />
-              </PopoverContent>
-            </Popover>
-
-            {pages.length > 1 && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="ml-1 h-4 w-4 hover:text-destructive"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  deletePage(page.id)
-                }}
-              >
-                <Trash2 className="h-3 w-3" />
-              </Button>
-            )}
-          </div>
-        ))}
-        <Button variant="outline" size="sm" onClick={addPage}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Page
-        </Button>
-      </div>
+            {pages.map((page, index) => (
+              <SortablePageTab
+                key={page.id}
+                page={page}
+                index={index}
+                isActive={activePageId === page.id}
+                canDelete={pages.length > 1}
+                onSelect={() => setActivePage(page.id)}
+                onDelete={() => deletePage(page.id)}
+                onRename={(title) => updatePageTitle(page.id, title)}
+              />
+            ))}
+          </SortableContext>
+          <Button variant="outline" size="sm" onClick={addPage}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Page
+          </Button>
+        </div>
+        <DragOverlay>
+          {activePageDragId && (
+            <div className="flex items-center gap-1 rounded-md border bg-background px-2 py-1.5 text-sm opacity-80 shadow-lg">
+              <GripVertical className="h-3 w-3 text-muted-foreground" />
+              <span>
+                {pages.find((p) => p.id === activePageDragId)?.title ||
+                  `Page ${pages.findIndex((p) => p.id === activePageDragId) + 1}`}
+              </span>
+            </div>
+          )}
+        </DragOverlay>
+      </DndContext>
 
       <DndContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
         {currentFields.length !== 0 ? (
