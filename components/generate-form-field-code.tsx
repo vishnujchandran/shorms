@@ -299,6 +299,34 @@ export const generateCodeSnippet = (field: FormField) => {
             </FormItem>
           )}
         />`
+    case FieldType.FILE_UPLOAD:
+      return `<FormField
+          control={form.control}
+          name="${field.name}"
+          render={({ field: { onChange, value, ...fieldProps } }) => (
+            <FormItem>
+              <FormLabel>${field.label}</FormLabel>
+              <FormControl>
+                <Input
+                  type="file"
+                  accept="${field.accept || "*/*"}"
+                  ${field.multiple ? "multiple" : ""}
+                  onChange={(e) => onChange(e.target.files)}
+                  {...fieldProps}
+                />
+              </FormControl>
+              ${
+                field.description &&
+                `<FormDescription>${field.description}</FormDescription>`
+              }
+              ${
+                field.maxSize &&
+                `<FormDescription>Max file size: ${field.maxSize} MB</FormDescription>`
+              }
+              <FormMessage />
+            </FormItem>
+          )}
+        />`
     default:
       return null
   }

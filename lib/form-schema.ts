@@ -26,6 +26,9 @@ export function generateZodSchema(formFields: FormField[]) {
       case FieldType.DATE:
         fieldSchema = z.date()
         break
+      case FieldType.FILE_UPLOAD:
+        fieldSchema = z.any()
+        break
       default:
         fieldSchema = z.string()
     }

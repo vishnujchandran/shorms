@@ -9,6 +9,7 @@ import {
   TextIcon,
   ToggleLeftIcon,
   TypeIcon,
+  UploadIcon,
 } from "lucide-react"
 
 import { FieldType, type FormField } from "@/types/field"
@@ -148,5 +149,16 @@ export const fields: FormField[] = [
     step: 10,
     default: 50,
     registryDependencies: ["slider"],
+  },
+  {
+    type: FieldType.FILE_UPLOAD,
+    name: "File Upload",
+    label: "Upload File",
+    description: "Select a file to upload",
+    Icon: UploadIcon,
+    accept: "*/*",
+    maxSize: 5,
+    multiple: false,
+    registryDependencies: ["input"],
   },
 ]

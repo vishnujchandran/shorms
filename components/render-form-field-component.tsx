@@ -279,5 +279,21 @@ export function renderFormFieldComponent({
           <FormMessage />
         </FormItem>
       )
+    case FieldType.FILE_UPLOAD:
+      return (
+        <FormFieldWrapper {...formField}>
+          <Input
+            type="file"
+            accept={formField.accept}
+            multiple={formField.multiple}
+            onChange={(e) => field.onChange(e.target.files)}
+          />
+          {formField.maxSize && (
+            <FormDescription>
+              Max file size: {formField.maxSize} MB
+            </FormDescription>
+          )}
+        </FormFieldWrapper>
+      )
   }
 }

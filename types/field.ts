@@ -13,6 +13,7 @@ export enum FieldType {
   SWITCH = "SWITCH",
   COMBOBOX = "COMBOBOX",
   SLIDER = "SLIDER",
+  FILE_UPLOAD = "FILE_UPLOAD",
 }
 
 interface FormFieldBaseType {
@@ -95,6 +96,13 @@ export interface SliderFormFieldType extends FormFieldBaseType {
   step: number
 }
 
+export interface FileUploadFormFieldType extends FormFieldBaseType {
+  type: FieldType.FILE_UPLOAD
+  accept?: string
+  maxSize?: number
+  multiple?: boolean
+}
+
 export type FormField =
   | InputFormFieldType
   | TextareaFormFieldType
@@ -107,3 +115,4 @@ export type FormField =
   | SwitchFormFieldType
   | ComboboxFormFieldType
   | SliderFormFieldType
+  | FileUploadFormFieldType

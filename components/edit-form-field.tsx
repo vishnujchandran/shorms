@@ -52,11 +52,7 @@ export function EditFormField() {
       modal={false}
     >
       {selectedFormField && selectedField && (
-        <SheetContent
-          withOverlay={false}
-          onInteractOutside={(e) => e.preventDefault()}
-          className="sm:max-w-lg"
-        >
+        <SheetContent withOverlay={false} className="sm:max-w-[614px]">
           <SheetHeader>
             <SheetTitle>Edit {selectedField.name} Field</SheetTitle>
             <SheetDescription>Update info about this field.</SheetDescription>

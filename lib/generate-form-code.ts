@@ -88,6 +88,9 @@ const generateImports = (formFields: FormField[]) => {
       case FieldType.SLIDER:
         importSet.add(`import { Slider } from "@/components/ui/slider"`)
         break
+      case FieldType.FILE_UPLOAD:
+        importSet.add(`import { Input } from "@/components/ui/input"`)
+        break
     }
   })
 
