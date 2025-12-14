@@ -8,39 +8,64 @@ export function generateZodSchema(formFields: FormField[]) {
     let fieldSchema: z.ZodTypeAny
     switch (field.type) {
       case FieldType.INPUT:
-        fieldSchema = z.string()
-        break
       case FieldType.TEXTAREA:
+      case FieldType.EMAIL:
+      case FieldType.SELECT:
+      case FieldType.RADIO_GROUP:
+      case FieldType.COMBOBOX:
         fieldSchema = z.string()
         break
       case FieldType.NUMBER_INPUT:
+      case FieldType.SLIDER:
         fieldSchema = z.coerce.number()
         break
-      case FieldType.EMAIL:
-        fieldSchema = z.string().email()
-        break
       case FieldType.CHECKBOX:
+      case FieldType.SWITCH:
         fieldSchema = z.boolean()
-        break
-      case FieldType.SELECT:
-        fieldSchema = z.string()
         break
       case FieldType.DATE:
         fieldSchema = z.date()
         break
-      case FieldType.RADIO_GROUP:
+      default:
         fieldSchema = z.string()
-        break
-      case FieldType.SWITCH:
-        fieldSchema = z.boolean()
-        break
-      case FieldType.COMBOBOX:
-        fieldSchema = z.string()
-        break
-      case FieldType.SLIDER:
-        fieldSchema = z.coerce.number()
-        break
     }
+
+    if (field.type === FieldType.EMAIL) {
+      fieldSchema = (fieldSchema as z.ZodString).email({
+        message: field.validation?.errorMessage,
+      })
+    }
+
+    // Apply Regex (Text based fields)
+    if (
+      field.validation?.regex &&
+      (field.type === FieldType.INPUT ||
+        field.type === FieldType.TEXTAREA ||
+        field.type === FieldType.EMAIL)
+    ) {
+      try {
+        fieldSchema = (fieldSchema as z.ZodString).regex(
+          new RegExp(field.validation.regex),
+          { message: field.validation.errorMessage }
+        )
+      } catch {
+        // Invalid regex, ignore
+        console.error("Invalid regex:", field.validation.regex)
+      }
+    }
+
+    // Apply Required / Optional
+    if (field.validation?.required) {
+      // For strings, required usually implies min(1) to disallow empty strings
+      if (fieldSchema instanceof z.ZodString) {
+        fieldSchema = fieldSchema.min(1, {
+          message: field.validation?.errorMessage || "Required",
+        })
+      }
+    } else {
+      fieldSchema = fieldSchema.optional()
+    }
+
     formSchemaObject[field.name] = fieldSchema
   })
 
@@ -75,9 +100,9 @@ export const zodSchemaToString = (schema: z.ZodTypeAny): string => {
     if ("checks" in schema._def) {
       schema._def.checks.forEach((check: z.ZodNumberCheck) => {
         if (check.kind === "min") {
-          result += `.min(${check.value})`
+          result += `.min(${check.value}${check.message ? `, "${check.message}"` : ""})`
         } else if (check.kind === "max") {
-          result += `.max(${check.value})`
+          result += `.max(${check.value}${check.message ? `, "${check.message}"` : ""})`
         }
       })
     }
@@ -89,11 +114,13 @@ export const zodSchemaToString = (schema: z.ZodTypeAny): string => {
     if ("checks" in schema._def) {
       schema._def.checks.forEach((check: z.ZodStringCheck) => {
         if (check.kind === "min") {
-          result += `.min(${check.value})`
+          result += `.min(${check.value}${check.message ? `, "${check.message}"` : ""})`
         } else if (check.kind === "max") {
-          result += `.max(${check.value})`
+          result += `.max(${check.value}${check.message ? `, "${check.message}"` : ""})`
         } else if (check.kind === "email") {
-          result += `.email()`
+          result += `.email(${check.message ? `"${check.message}"` : ""})`
+        } else if (check.kind === "regex") {
+          result += `.regex(new RegExp("${check.regex.source.replace(/\\/g, "\\\\")}")${check.message ? `, "${check.message}"` : ""})`
         }
       })
     }

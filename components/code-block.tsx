@@ -12,8 +12,8 @@ export function CodeBlock() {
   const [nodes, setNodes] = React.useState(
     <Skeleton className="h-48 w-full rounded-t-none" />
   )
-  const formFields = useFormStore((state) => state.formFields)
-  const formCode = generateFormCode(formFields)
+  const pages = useFormStore((state) => state.pages)
+  const formCode = generateFormCode(pages)
 
   React.useLayoutEffect(() => {
     void highlight(formCode).then(setNodes)

@@ -41,7 +41,7 @@ export function SidebarLeft({
           <div className="flex aspect-square size-6 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
             <Logo className="size-4 invert" />
           </div>
-          <span className="text-sm font-semibold">Shadcn Form Builder</span>
+          <span className="text-sm font-semibold">Shorms Builder</span>
         </div>
       </SidebarHeader>
       <SidebarSeparator />

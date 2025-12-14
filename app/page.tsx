@@ -8,11 +8,11 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ClearForm } from "@/components/clear-form"
 import { Cli } from "@/components/cli"
 import { CodeBlock } from "@/components/code-block"
 import { EditFormField } from "@/components/edit-form-field"
 import { FormEditor } from "@/components/form-editor"
+import { HeaderActions } from "@/components/header-actions"
 import { Icons } from "@/components/icons"
 import { ModeToggle } from "@/components/mode-toggle"
 import { SidebarLeft } from "@/components/sidebar-left"
@@ -70,7 +70,7 @@ export default async function Home() {
               <div className="h-2.5 w-2.5 rounded-full bg-red-500"></div>
               <div className="h-2.5 w-2.5 rounded-full bg-yellow-500"></div>
               <div className="h-2.5 w-2.5 rounded-full bg-green-500"></div>
-              <ClearForm />
+              <HeaderActions />
             </div>
             <TabsList className="relative w-full justify-start rounded-none border-b bg-transparent p-1">
               <TabsTrigger

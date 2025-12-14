@@ -2,14 +2,17 @@ import { getZodSchemaString } from "@/lib/form-schema"
 import { generateCodeSnippet } from "@/components/generate-form-field-code"
 
 import { FieldType, type FormField } from "@/types/field"
+import { FormPage } from "@/types/form-store"
 
 const generateImports = (formFields: FormField[]) => {
   const importSet = new Set([
-    `"use client"\n`,
+    `"use client"
+`,
     `import * as React from 'react'`,
     `import { zodResolver } from "@hookform/resolvers/zod"`,
     `import { useForm } from "react-hook-form"`,
-    `import { z } from "zod"\n`,
+    `import { z } from "zod"
+`,
     `import { cn } from "@/lib/utils"`,
     `import { toast } from "@/hooks/use-toast"`,
     `import { Button } from "@/components/ui/button"`,
@@ -129,15 +132,23 @@ export const generateDefaultValuesString = (fields: FormField[]): string => {
 
   const combinedString = regularValuesString
 
-  return `defaultValues: {${combinedString}\t},`
+  return `defaultValues: {${combinedString}	},
+`
 }
 
-export const generateFormCode = (formFields: FormField[]) => {
+export const generateFormCode = (pages: FormPage[]) => {
+  const formFields = pages.flatMap((p) => p.fields)
   const imports = Array.from(generateImports(formFields)).join("\n")
   const formSchema = getZodSchemaString(formFields)
   const constants = Array.from(generateConstants(formFields)).join("\n\n  ")
   const defaultValuesString = generateDefaultValuesString(formFields)
-  const component = `
+
+  const isMultiPage = pages.length > 1
+
+  let componentBody = ""
+
+  if (!isMultiPage) {
+    componentBody = `
 export function MyForm() {
   ${constants}
   const form = useForm<z.infer<typeof formSchema>>({
@@ -168,5 +179,73 @@ export function MyForm() {
   )
 }
 `
-  return imports + "\n\n" + formSchema + "\n" + component
+  } else {
+    // Multi-page logic
+    componentBody = `
+export function MyForm() {
+  const [currentPage, setCurrentPage] = React.useState(0)
+  ${constants}
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    mode: "onChange",
+    ${defaultValuesString}
+  })
+
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    toast({
+      title: "You submitted the following values:",
+      description: (
+        <pre className="mt-2 w-[340px] overflow-auto rounded-md bg-slate-950 p-4">
+          <code className="overflow-auto text-white">
+            {JSON.stringify(values, null, 2)}
+          </code>
+        </pre>
+      ),
+    })
+  }
+  
+  const handleNext = async (fields: string[]) => {
+    const isValid = await form.trigger(fields as any)
+    if (isValid) {
+      setCurrentPage((prev) => prev + 1)
+    }
+  }
+
+  const handleBack = () => {
+    setCurrentPage((prev) => prev - 1)
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-4">
+        ${pages
+          .map((page, index) => {
+            const pageFields = page.fields
+              .map((f) => f.name)
+              .map((n) => `"${n}"`)
+              .join(", ")
+            return `
+        {currentPage === ${index} && (
+          <div className="space-y-4">
+            ${page.fields.map((field) => generateCodeSnippet(field)).join("\n            ")}
+            <div className="flex justify-between pt-4">
+              ${index > 0 ? `<Button type="button" variant="outline" onClick={handleBack}>Back</Button>` : `<div></div>`}
+              ${
+                index < pages.length - 1
+                  ? `<Button type="button" onClick={() => handleNext([${pageFields}])}>Next</Button>`
+                  : `<Button type="submit">Submit</Button>`
+              }
+            </div>
+          </div>
+        )}`
+          })
+          .join("\n")}
+      </form>
+    </Form>
+  )
+}
+`
+  }
+
+  return imports + "\n\n" + formSchema + "\n" + componentBody
 }

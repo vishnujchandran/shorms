@@ -25,9 +25,15 @@ interface FormFieldBaseType {
   >
   description?: string
   placeholder?: string
-  required?: boolean
   default?: string | number | boolean | Date
   registryDependencies: string[]
+  validation?: {
+    required?: boolean
+    min?: number
+    max?: number
+    regex?: string
+    errorMessage?: string
+  }
 }
 
 export interface InputFormFieldType extends FormFieldBaseType {

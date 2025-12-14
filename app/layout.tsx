@@ -12,8 +12,8 @@ import { TooltipProvider } from "@/components/ui/tooltip"
 export const metadata: Metadata = {
   metadataBase: new URL("https://forms.ouassim.tech"),
   title: {
-    default: "Shadcn Form Builder",
-    template: "%s - Shadcn Form Builder",
+    default: "Shorms Builder",
+    template: "%s - Shorms Builder",
   },
   keywords: ["React", "Shadcn", "React hook form", "Zod"],
   authors: [

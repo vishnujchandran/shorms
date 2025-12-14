@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/sheet"
 import { Textarea } from "@/components/ui/textarea"
 import { RenderEditFormFieldInputs } from "@/components/render-edit-form-field-inputs"
+import { ValidationSettings } from "@/components/validation-settings"
 
 import { FormState } from "@/types/form-store"
 
@@ -24,7 +25,7 @@ const selector = (state: FormState) => ({
   setIsEditFormFieldOpen: state.setIsEditFormFieldOpen,
   selectedFormField: state.selectedFormField,
   updateFormField: state.updateFormField,
-  formFields: state.formFields,
+  pages: state.pages,
 })
 
 export function EditFormField() {
@@ -33,12 +34,16 @@ export function EditFormField() {
     setIsEditFormFieldOpen,
     selectedFormField,
     updateFormField,
-    formFields,
+    pages,
   } = useFormStore(useShallow(selector))
 
   const selectedField = React.useMemo(() => {
-    return formFields.find((f) => f.id === selectedFormField)
-  }, [selectedFormField, formFields])
+    for (const page of pages) {
+      const field = page.fields.find((f) => f.id === selectedFormField)
+      if (field) return field
+    }
+    return undefined
+  }, [selectedFormField, pages])
 
   return (
     <Sheet
@@ -101,6 +106,11 @@ export function EditFormField() {
               />
             </div>
             <RenderEditFormFieldInputs selectedField={selectedField} />
+            <Separator />
+            <div className="space-y-4">
+              <h4 className="font-medium leading-none">Validation</h4>
+              <ValidationSettings selectedField={selectedField} />
+            </div>
           </div>
         </SheetContent>
       )}

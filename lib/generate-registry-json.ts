@@ -7,7 +7,8 @@ import type { FormField } from "@/types/field"
 import { RegistryItemType, type RegistryType } from "@/types/registry"
 
 export const generateRegistryJson = async (formFields: FormField[]) => {
-  const formCode = generateFormCode(formFields)
+  // Wrap flat fields in a single page structure for compatibility
+  const formCode = generateFormCode([{ id: "page-1", fields: formFields }])
 
   const registryDependencies: Set<string> = new Set()
 

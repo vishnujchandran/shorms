@@ -25,7 +25,12 @@ import { TooltipWrapper } from "./tooltip-wrapper"
 
 export function Cli() {
   const { toast } = useToast()
-  const formFields = useFormStore((state) => state.formFields)
+  const pages = useFormStore((state) => state.pages)
+  const formFields = React.useMemo(
+    () => pages.flatMap((p) => p.fields),
+    [pages]
+  )
+
   const [isLoading, setIsLoading] = React.useState(false)
   const [hasCopied, setHasCopied] = React.useState(false)
   const command = React.useMemo(

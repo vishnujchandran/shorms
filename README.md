@@ -1,9 +1,9 @@
 <a id="readme-top"></a>
 
-<h3 align="center">Shadcn/ui Form Builder</h3>
+<h3 align="center">Shorms (Shadcn Forms) Builder</h3>
 
 <p align="center">
-  Awesome WYSIWYG codegen Shadcn/ui Form Builder
+  Advanced Multi-Page Form Builder for Shadcn/ui & React Hook Form
   <br />
   <br />
   <a href="https://forms.ouassim.tech" target="_blank">Demo</a>
@@ -31,13 +31,16 @@
 
 [![Product Name Screen Shot][product-screenshot]](https://forms.ouassim.tech)
 
-Creating forms has never been simpler, thanks to [shadcn/ui](https://ui.shadcn.com) and [React Hook Form](https://www.react-hook-form.com/). But what if we took it a step further? Imagine if you could simply select the input fields you need, and the rest was done for you—automatically:
+**Shorms** is a powerful WYSIWYG form builder built on top of [shadcn/ui](https://ui.shadcn.com) and [React Hook Form](https://www.react-hook-form.com/). It goes beyond simple single-page forms by offering a complete solution for complex data collection needs.
 
-- Generate a Zod schema tailored to your selected fields.
-- Create complete form code, fully integrated with your chosen fields.
-- Include validation, default values, and more advanced configurations.
+**Key Features:**
 
-With just a few clicks, your form could be ready to go!
+*   **Multi-Page Support:** Create complex wizards and multi-step forms with ease.
+*   **Advanced Validation:** Configure Regex patterns, required fields, and custom error messages directly in the UI.
+*   **Instant Code Generation:** Get production-ready React code (zod + react-hook-form) that includes state management for multi-page navigation.
+*   **Live Preview:** Test your form logic instantly with the built-in "Form Runner".
+*   **Import / Export:** Save your form schema to JSON and restore it later.
+*   **Shadcn CLI Integration:** Add the generated form directly to your project via CLI.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -83,15 +86,18 @@ Open your browser and navigate to [http://localhost:3000](http://localhost:3000)
 
 ## Roadmap
 
-- [ ] Ability to have multiple fields on one line and to re-arrange them as you want.
+- [x] Multi-Page / Wizard Form Support
+- [x] Advanced Validation (Regex, Custom Messages)
+- [x] JSON Import / Export
+- [x] Live Form Preview (Runner)
+- [ ] Drag-and-drop page reordering
+- [ ] Undo/Redo functionality
 - [ ] Add More fields
   - [ ] File input
   - [ ] OTP input
   - [ ] Multi select
   - [ ] Phone input
-- [ ] Add choice to use [yup](https://github.com/jquense/yup?tab=readme-ov-file) validation
-- [ ] Add Form Templates.
-- [ ] Add more detailed customizations on fields (regex for text inputs for eg.)
+- [ ] Form Templates
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
