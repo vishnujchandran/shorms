@@ -1,6 +1,7 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import { immer } from "zustand/middleware/immer"
+import { nanoid } from "nanoid"
 
 import { FormState } from "@/types/form-store"
 
@@ -17,7 +18,7 @@ export const useFormStore = create<FormState>()(
       setActivePage: (id) => set({ activePageId: id }),
 
       addPage: () => {
-        const newPageId = `page-${Date.now()}`
+        const newPageId = `page_${nanoid(8)}`
         set((state) => {
           state.pages.push({ id: newPageId, fields: [] })
           state.activePageId = newPageId

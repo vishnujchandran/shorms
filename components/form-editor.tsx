@@ -105,8 +105,8 @@ function SortablePageTab({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "flex cursor-pointer items-center gap-1 rounded-md border px-2 py-1.5 text-sm hover:bg-muted/50",
-        isActive && "bg-muted font-medium"
+        "flex cursor-pointer items-center gap-1.5 rounded-md border bg-background px-3 py-2 text-sm shadow-sm transition-all hover:bg-accent hover:shadow",
+        isActive && "border-primary bg-primary/5 font-semibold shadow"
       )}
       onClick={onSelect}
     >
@@ -279,7 +279,7 @@ export function FormEditor() {
   }
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full min-h-[600px] flex-col">
       {/* Page Tabs */}
       {isMounted ? (
         <DndContext
@@ -288,7 +288,7 @@ export function FormEditor() {
           onDragEnd={handlePageDragEnd}
           onDragStart={handlePageDragStart}
         >
-          <div className="flex items-center gap-2 overflow-x-auto border-b p-2">
+          <div className="flex items-center gap-2 overflow-x-auto border-b bg-muted/30 p-3">
             <SortableContext
               items={pages.map((p) => p.id)}
               strategy={horizontalListSortingStrategy}
@@ -306,7 +306,7 @@ export function FormEditor() {
                 />
               ))}
             </SortableContext>
-            <Button variant="outline" size="sm" onClick={addPage}>
+            <Button variant="outline" size="sm" onClick={addPage} className="shrink-0">
               <Plus className="mr-2 h-4 w-4" />
               Add Page
             </Button>
@@ -352,7 +352,7 @@ export function FormEditor() {
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="mx-auto flex w-3/4 flex-col gap-6 p-4"
+                className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-8"
               >
                 <SortableContext
                   items={currentFields.map((formField) => formField.name)}
@@ -373,15 +373,22 @@ export function FormEditor() {
                     <></>
                   )}
                 </DragOverlay>
-                <Button type="submit">Submit (Current Page)</Button>
+                <Button type="submit" size="lg" className="mt-2">
+                  Submit Form
+                </Button>
               </form>
             </Form>
           ) : (
-            <div className="grid place-items-center p-12">
-              <h3 className="text-2xl font-semibold">No Fields on this page</h3>
-              <p className="text-muted-foreground">
-                Select fields from the sidebar...
-              </p>
+            <div className="grid place-items-center py-20">
+              <div className="space-y-3 text-center">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                  <Plus className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <h3 className="text-xl font-semibold">No fields yet</h3>
+                <p className="max-w-sm text-sm text-muted-foreground">
+                  Get started by selecting field types from the sidebar to build your form
+                </p>
+              </div>
             </div>
           )}
         </DndContext>
@@ -390,20 +397,27 @@ export function FormEditor() {
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="mx-auto flex w-3/4 flex-col gap-6 p-4"
+              className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-8"
             >
               {currentFields.map((formField) => (
                 <Field formField={formField} key={formField.name} />
               ))}
-              <Button type="submit">Submit (Current Page)</Button>
+              <Button type="submit" size="lg" className="mt-2">
+                Submit Form
+              </Button>
             </form>
           </Form>
         ) : (
-          <div className="grid place-items-center p-12">
-            <h3 className="text-2xl font-semibold">No Fields on this page</h3>
-            <p className="text-muted-foreground">
-              Select fields from the sidebar...
-            </p>
+          <div className="grid place-items-center py-20">
+            <div className="space-y-3 text-center">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                <Plus className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <h3 className="text-xl font-semibold">No fields yet</h3>
+              <p className="max-w-sm text-sm text-muted-foreground">
+                Get started by selecting field types from the sidebar to build your form
+              </p>
+            </div>
           </div>
         )
       )}

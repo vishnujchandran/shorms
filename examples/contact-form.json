@@ -1,0 +1,82 @@
+[
+  {
+    "id": "page-1",
+    "title": "Contact Us",
+    "fields": [
+      {
+        "id": "name_field",
+        "type": "INPUT",
+        "name": "full_name",
+        "label": "Full Name",
+        "description": "Please enter your full name",
+        "placeholder": "John Doe",
+        "Icon": {},
+        "registryDependencies": ["form", "input", "label"],
+        "validation": {
+          "required": true,
+          "min": 2,
+          "max": 100,
+          "errorMessage": "Name must be between 2 and 100 characters"
+        }
+      },
+      {
+        "id": "email_field",
+        "type": "EMAIL",
+        "name": "email",
+        "label": "Email Address",
+        "description": "We'll never share your email",
+        "placeholder": "john@example.com",
+        "Icon": {},
+        "registryDependencies": ["form", "input", "label"],
+        "validation": {
+          "required": true,
+          "errorMessage": "Please enter a valid email address"
+        }
+      },
+      {
+        "id": "subject_field",
+        "type": "SELECT",
+        "name": "subject",
+        "label": "Subject",
+        "description": "What is this regarding?",
+        "Icon": {},
+        "registryDependencies": ["form", "select", "label"],
+        "choices": [
+          { "value": "general", "label": "General Inquiry" },
+          { "value": "support", "label": "Technical Support" },
+          { "value": "feedback", "label": "Feedback" },
+          { "value": "other", "label": "Other" }
+        ],
+        "validation": {
+          "required": true
+        }
+      },
+      {
+        "id": "message_field",
+        "type": "TEXTAREA",
+        "name": "message",
+        "label": "Message",
+        "description": "Please provide details",
+        "placeholder": "Type your message here...",
+        "Icon": {},
+        "registryDependencies": ["form", "textarea", "label"],
+        "validation": {
+          "required": true,
+          "min": 10,
+          "max": 1000,
+          "errorMessage": "Message must be between 10 and 1000 characters"
+        }
+      },
+      {
+        "id": "newsletter_field",
+        "type": "CHECKBOX",
+        "name": "subscribe_newsletter",
+        "label": "Subscribe to Newsletter",
+        "description": "Receive updates and news",
+        "Icon": {},
+        "registryDependencies": ["form", "checkbox", "label"],
+        "default": false
+      }
+    ]
+  }
+]

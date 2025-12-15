@@ -33,10 +33,47 @@ export function generateZodSchema(formFields: FormField[]) {
         fieldSchema = z.string()
     }
 
+    // Email validation
     if (field.type === FieldType.EMAIL) {
       fieldSchema = (fieldSchema as z.ZodString).email({
-        message: field.validation?.errorMessage,
+        message: field.validation?.errorMessage || "Invalid email address",
       })
+    }
+
+    // Apply min/max for text fields (length)
+    if (
+      field.validation &&
+      (field.type === FieldType.INPUT ||
+        field.type === FieldType.TEXTAREA ||
+        field.type === FieldType.EMAIL)
+    ) {
+      if (field.validation.min !== undefined) {
+        fieldSchema = (fieldSchema as z.ZodString).min(field.validation.min, {
+          message: field.validation.errorMessage || `Minimum ${field.validation.min} characters required`,
+        })
+      }
+      if (field.validation.max !== undefined) {
+        fieldSchema = (fieldSchema as z.ZodString).max(field.validation.max, {
+          message: field.validation.errorMessage || `Maximum ${field.validation.max} characters allowed`,
+        })
+      }
+    }
+
+    // Apply min/max for number fields (value)
+    if (
+      field.validation &&
+      (field.type === FieldType.NUMBER_INPUT || field.type === FieldType.SLIDER)
+    ) {
+      if (field.validation.min !== undefined) {
+        fieldSchema = (fieldSchema as z.ZodNumber).min(field.validation.min, {
+          message: field.validation.errorMessage || `Minimum value is ${field.validation.min}`,
+        })
+      }
+      if (field.validation.max !== undefined) {
+        fieldSchema = (fieldSchema as z.ZodNumber).max(field.validation.max, {
+          message: field.validation.errorMessage || `Maximum value is ${field.validation.max}`,
+        })
+      }
     }
 
     // Apply Regex (Text based fields)
@@ -49,7 +86,7 @@ export function generateZodSchema(formFields: FormField[]) {
       try {
         fieldSchema = (fieldSchema as z.ZodString).regex(
           new RegExp(field.validation.regex),
-          { message: field.validation.errorMessage }
+          { message: field.validation.errorMessage || "Invalid format" }
         )
       } catch {
         // Invalid regex, ignore
@@ -57,12 +94,26 @@ export function generateZodSchema(formFields: FormField[]) {
       }
     }
 
+    // File size validation for file uploads
+    if (field.type === FieldType.FILE_UPLOAD && field.validation?.maxFileSize) {
+      // Custom validation for file size (in MB)
+      fieldSchema = z.any().refine(
+        (file) => {
+          if (!file || !(file instanceof File)) return true
+          return file.size <= (field.validation!.maxFileSize! * 1024 * 1024)
+        },
+        {
+          message: `File size must be less than ${field.validation.maxFileSize}MB`,
+        }
+      )
+    }
+
     // Apply Required / Optional
     if (field.validation?.required) {
       // For strings, required usually implies min(1) to disallow empty strings
       if (fieldSchema instanceof z.ZodString) {
         fieldSchema = fieldSchema.min(1, {
-          message: field.validation?.errorMessage || "Required",
+          message: field.validation?.errorMessage || "This field is required",
         })
       }
     } else {

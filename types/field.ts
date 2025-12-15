@@ -30,10 +30,11 @@ interface FormFieldBaseType {
   registryDependencies: string[]
   validation?: {
     required?: boolean
-    min?: number
-    max?: number
+    min?: number // For numbers: min value, For text: min length
+    max?: number // For numbers: max value, For text: max length
     regex?: string
     errorMessage?: string
+    maxFileSize?: number // For file uploads: max size in MB
   }
 }
 

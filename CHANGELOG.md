@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Unique field ID generation using nanoid (collision-resistant)
+- Enhanced validation system:
+  - Min/max length validation for text fields (INPUT, TEXTAREA, EMAIL)
+  - Min/max value validation for number fields (NUMBER_INPUT, SLIDER)
+  - File size validation for FILE_UPLOAD fields (in MB)
+- Comprehensive example forms in `/examples` directory:
+  - contact-form.json - Single-page contact form
+  - user-registration.json - Multi-page registration wizard
+  - feedback-survey.json - Customer feedback survey
+- LLM Integration documentation (LLM_INTEGRATION.md)
+- Validation settings UI for min/max constraints
+- Better empty state messaging with icons
+
+### Changed
+- Redesigned header with visual hierarchy, title, and backdrop blur
+- Improved page tab styling with shadows and better active states
+- Enhanced form editor spacing and layout (max-width, better padding)
+- Polished footer design
+- Updated field name generation for better uniqueness
+- Improved validation error messages with better defaults
+
 ### Removed
 - Database functionality (Turso/libSQL, Drizzle ORM)
 - Form sharing via API registry

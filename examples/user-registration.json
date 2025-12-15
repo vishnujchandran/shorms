@@ -1,0 +1,172 @@
+[
+  {
+    "id": "page_personal",
+    "title": "Personal Info",
+    "fields": [
+      {
+        "id": "first_name_field",
+        "type": "INPUT",
+        "name": "first_name",
+        "label": "First Name",
+        "placeholder": "John",
+        "Icon": {},
+        "registryDependencies": ["form", "input", "label"],
+        "validation": {
+          "required": true,
+          "min": 2,
+          "max": 50
+        }
+      },
+      {
+        "id": "last_name_field",
+        "type": "INPUT",
+        "name": "last_name",
+        "label": "Last Name",
+        "placeholder": "Doe",
+        "Icon": {},
+        "registryDependencies": ["form", "input", "label"],
+        "validation": {
+          "required": true,
+          "min": 2,
+          "max": 50
+        }
+      },
+      {
+        "id": "dob_field",
+        "type": "DATE",
+        "name": "date_of_birth",
+        "label": "Date of Birth",
+        "description": "Must be 18 or older",
+        "Icon": {},
+        "registryDependencies": ["form", "calendar", "button", "popover"],
+        "validation": {
+          "required": true
+        }
+      },
+      {
+        "id": "phone_field",
+        "type": "INPUT",
+        "name": "phone_number",
+        "label": "Phone Number",
+        "placeholder": "+1 (555) 000-0000",
+        "Icon": {},
+        "registryDependencies": ["form", "input", "label"],
+        "validation": {
+          "regex": "^[+]?[(]?[0-9]{1,4}[)]?[-\\s.]?[(]?[0-9]{1,4}[)]?[-\\s.]?[0-9]{1,9}$",
+          "errorMessage": "Please enter a valid phone number"
+        }
+      }
+    ]
+  },
+  {
+    "id": "page_account",
+    "title": "Account Details",
+    "fields": [
+      {
+        "id": "username_field",
+        "type": "INPUT",
+        "name": "username",
+        "label": "Username",
+        "description": "Choose a unique username",
+        "placeholder": "johndoe123",
+        "Icon": {},
+        "registryDependencies": ["form", "input", "label"],
+        "validation": {
+          "required": true,
+          "min": 3,
+          "max": 20,
+          "regex": "^[a-zA-Z0-9_]+$",
+          "errorMessage": "Username can only contain letters, numbers, and underscores"
+        }
+      },
+      {
+        "id": "email_field",
+        "type": "EMAIL",
+        "name": "email",
+        "label": "Email Address",
+        "placeholder": "john@example.com",
+        "Icon": {},
+        "registryDependencies": ["form", "input", "label"],
+        "validation": {
+          "required": true
+        }
+      },
+      {
+        "id": "password_field",
+        "type": "INPUT",
+        "name": "password",
+        "label": "Password",
+        "description": "Minimum 8 characters",
+        "placeholder": "••••••••",
+        "Icon": {},
+        "registryDependencies": ["form", "input", "label"],
+        "validation": {
+          "required": true,
+          "min": 8,
+          "max": 100,
+          "errorMessage": "Password must be at least 8 characters"
+        }
+      }
+    ]
+  },
+  {
+    "id": "page_preferences",
+    "title": "Preferences",
+    "fields": [
+      {
+        "id": "notification_field",
+        "type": "SWITCH",
+        "name": "enable_notifications",
+        "label": "Enable Notifications",
+        "description": "Receive email notifications",
+        "Icon": {},
+        "registryDependencies": ["form", "switch", "label"],
+        "default": true
+      },
+      {
+        "id": "theme_field",
+        "type": "RADIO_GROUP",
+        "name": "theme_preference",
+        "label": "Theme Preference",
+        "Icon": {},
+        "registryDependencies": ["form", "radio-group", "label"],
+        "choices": [
+          { "value": "light", "label": "Light" },
+          { "value": "dark", "label": "Dark" },
+          { "value": "system", "label": "System Default" }
+        ],
+        "default": "system",
+        "validation": {
+          "required": true
+        }
+      },
+      {
+        "id": "interests_field",
+        "type": "COMBOBOX",
+        "name": "primary_interest",
+        "label": "Primary Interest",
+        "description": "Select your main area of interest",
+        "Icon": {},
+        "registryDependencies": ["form", "popover", "command"],
+        "choices": [
+          { "value": "technology", "label": "Technology" },
+          { "value": "business", "label": "Business" },
+          { "value": "design", "label": "Design" },
+          { "value": "marketing", "label": "Marketing" },
+          { "value": "other", "label": "Other" }
+        ]
+      },
+      {
+        "id": "terms_field",
+        "type": "CHECKBOX",
+        "name": "accept_terms",
+        "label": "I accept the Terms and Conditions",
+        "Icon": {},
+        "registryDependencies": ["form", "checkbox", "label"],
+        "validation": {
+          "required": true
+        }
+      }
+    ]
+  }
+]

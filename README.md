@@ -29,11 +29,14 @@ Everything runs locally - no database, no backend, no deployment needed. Build y
 ## Features
 
 - ✅ **Multi-Page Support** - Create complex wizards and multi-step forms
-- ✅ **Advanced Validation** - Configure regex patterns, required fields, and custom error messages
+- ✅ **Advanced Validation** - Configure regex patterns, min/max length, min/max values, required fields, and custom error messages
+- ✅ **File Upload** - Support file uploads with size validation (max MB limits)
 - ✅ **Live Preview** - Test your form logic instantly with the built-in Form Runner
 - ✅ **Code Generation** - Export production-ready React code with Zod validation and react-hook-form
 - ✅ **JSON Import/Export** - Save and restore form schemas locally
-- ✅ **Drag-and-Drop** - Reorder fields within pages
+- ✅ **Drag-and-Drop** - Reorder fields and pages with intuitive drag-and-drop
+- ✅ **Example Forms** - Ready-to-use templates for common form types (contact, registration, surveys)
+- ✅ **LLM Integration** - Comprehensive guide for AI agents to integrate Shorms into projects
 - ✅ **Local State** - All data persists in localStorage, no backend required
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -84,21 +87,26 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### Completed
 - [x] Multi-Page / Wizard Form Support
-- [x] Advanced Validation (Regex, Custom Messages)
+- [x] Advanced Validation (Regex, Min/Max Length, Min/Max Values, Custom Messages)
 - [x] JSON Import / Export
 - [x] Live Form Preview (Runner)
 - [x] Code Generation with Multi-Page Support
+- [x] Drag-and-drop page reordering
+- [x] File upload field with size validation
+- [x] Example form templates
+- [x] LLM integration documentation
+- [x] Unique field ID generation (nanoid)
 
 ### Planned
-- [ ] Drag-and-drop page reordering
 - [ ] Undo/Redo functionality
 - [ ] Additional field types:
-  - [ ] File input
   - [ ] OTP input
   - [ ] Multi select
   - [ ] Phone input
-- [ ] Form Templates
+- [ ] Conditional field logic (show/hide based on other fields)
+- [ ] Form templates library
 - [ ] Theme customization for generated forms
+- [ ] Dark mode improvements
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

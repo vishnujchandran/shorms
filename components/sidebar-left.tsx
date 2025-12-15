@@ -5,6 +5,7 @@ import { useFormStore } from "@/stores/form"
 import { useShallow } from "zustand/shallow"
 
 import { fields } from "@/lib/constants"
+import { generateFieldId, generateFieldName } from "@/lib/utils"
 import {
   Sidebar,
   SidebarContent,
@@ -53,8 +54,8 @@ export function SidebarLeft({
                     onClick={() => {
                       const newFormField = {
                         ...field,
-                        id: Math.random().toString().slice(-10),
-                        name: `${field.name.toLowerCase().replaceAll(" ", "_")}_${Math.random().toString().slice(-10)}`,
+                        id: generateFieldId(),
+                        name: generateFieldName(field.name),
                       }
                       addFormField(newFormField)
                     }}

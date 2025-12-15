@@ -1,10 +1,14 @@
 # Bootstrap Chain
 
-- this is a repo thats partially complete
-- it has a form builder
-- we want to build it to a SurveyJS lite
-- we have a plan in koder/plans/01_shorms-initial.md
-- review the repo, the plan and give me a clear summary of what you understood
+- this is a repo for Shorms, a local-first multi-page form builder
+- the initial plan (koder/plans/01_shorms-initial.md) has been completed
+- all 6 phases are done: branding, pagination, validation, import/export, runner, code gen
+- recent refinements (Dec 15, 2025) include:
+  - improved field IDs (nanoid), enhanced validation (min/max length/value, file size)
+  - example forms in /examples, LLM integration docs
+  - UI polish (header, tabs, spacing, empty states)
+- review koder/NEXT_SESSION.md for current state and potential next steps
+- review the repo and give me a clear summary of what you understood
   before starting/resuming the work
 
 ## Files
@@ -27,6 +31,8 @@
 - clean up files
 - update Bootstrap Chain
 - update docs (README/CHANGELOG/CLAUDE/ koder/NEXT_SESSION)
+- commit
+- push
 - prepare to restart the session
 
 ### Rationale
