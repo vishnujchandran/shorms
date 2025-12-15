@@ -8,6 +8,7 @@ Shorms is a local-first, multi-page form builder that generates:
 - **JSON schemas** describing form structure and validation
 - **React components** with built-in validation using Zod and React Hook Form
 - **shadcn/ui-based** UI components for consistent styling
+- Its built as a simple/native alternative for SurveyJS
 
 ## Quick Start: Integration Checklist
 
@@ -55,20 +56,20 @@ When a user asks you to integrate a Shorms form into their project:
 
 ### Field Types
 
-| Type | Description | Validation Options |
-|------|-------------|-------------------|
-| `INPUT` | Single-line text | min/max length, regex, required |
-| `TEXTAREA` | Multi-line text | min/max length, regex, required |
-| `EMAIL` | Email input | required, custom error |
-| `NUMBER_INPUT` | Numeric input | min/max value, required |
-| `SELECT` | Dropdown select | required, choices array |
-| `RADIO_GROUP` | Radio buttons | required, choices array |
-| `CHECKBOX` | Single checkbox | - |
-| `SWITCH` | Toggle switch | - |
-| `COMBOBOX` | Searchable dropdown | choices array |
-| `SLIDER` | Range slider | min, max, step values |
-| `DATE` | Date picker | required |
-| `FILE_UPLOAD` | File input | maxFileSize (MB), accept, multiple |
+ | Type           | Description         | Validation Options                 |
+ | ------         | -------------       | -------------------                |
+ | `INPUT`        | Single-line text    | min/max length, regex, required    |
+ | `TEXTAREA`     | Multi-line text     | min/max length, regex, required    |
+ | `EMAIL`        | Email input         | required, custom error             |
+ | `NUMBER_INPUT` | Numeric input       | min/max value, required            |
+ | `SELECT`       | Dropdown select     | required, choices array            |
+ | `RADIO_GROUP`  | Radio buttons       | required, choices array            |
+ | `CHECKBOX`     | Single checkbox     | -                                  |
+ | `SWITCH`       | Toggle switch       | -                                  |
+ | `COMBOBOX`     | Searchable dropdown | choices array                      |
+ | `SLIDER`       | Range slider        | min, max, step values              |
+ | `DATE`         | Date picker         | required                           |
+ | `FILE_UPLOAD`  | File input          | maxFileSize (MB), accept, multiple |
 
 ### Validation Object
 
