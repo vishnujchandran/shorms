@@ -103,8 +103,69 @@ export {
   schemaToFormPages,
 } from './lib/schema-adapter'
 
+// ============================================================================
+// Builder Components (Phase 2 - Complete)
+// ============================================================================
+
 /**
- * Planned additional exports:
- * - Builder: Interactive form builder component (extracted from FormEditor)
- * - Viewer: Read-only form viewer component
+ * Form Builder - Interactive form builder component with no internal global state
+ *
+ * - Builder: Main controlled builder component
+ * - ShadcnBuilder: High-level wrapper with shadcn/ui styling
+ * - useBuilderState: Convenience hook for state management
+ * - FieldLibrary: Field template sidebar
+ * - FormContext: Form statistics sidebar
+ * - PageTabs: Page management UI
  */
+export {
+  Builder,
+  FieldLibrary,
+  FormContext,
+  PageTabs,
+  useBuilderState,
+  defaultFieldTemplates,
+  fieldCategories,
+  widthClasses,
+} from './components/shorms/builder'
+
+export { ShadcnBuilder } from './components/shorms/shadcn-builder'
+
+export type {
+  BuilderProps,
+  BuilderState,
+  FieldLibraryProps,
+  FieldTemplate,
+  FormContextProps,
+  FormPage as BuilderFormPage,
+  PageTabsProps,
+} from './components/shorms/builder'
+
+// ============================================================================
+// Viewer Components (Phase 3 - Complete)
+// ============================================================================
+
+/**
+ * Form Viewer - Read-only display for form schemas and submissions
+ *
+ * - Viewer: Main controlled viewer component
+ * - ShadcnViewer: High-level wrapper with shadcn/ui styling
+ * - Multiple view modes: detailed, compact, summary
+ * - Display form submissions with formatted data
+ */
+export {
+  Viewer,
+  FieldDisplay,
+  formatFieldValue,
+  getValidationSummary,
+  getFormStatistics,
+  getFieldTypeLabel,
+} from './components/shorms/viewer'
+
+export { ShadcnViewer, type ShadcnViewerProps } from './components/shorms/shadcn-viewer'
+
+export type {
+  ViewMode,
+  ViewerProps,
+  ViewerMetadata,
+  FormStatistics,
+} from './components/shorms/viewer'

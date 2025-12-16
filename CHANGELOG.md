@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Viewer Component Extraction (Phase 3 Complete)**:
+  - Core Viewer component in `components/shorms/viewer/` with read-only display
+  - ShadcnViewer wrapper with export and print functionality
+  - Three view modes: detailed, compact, and summary
+  - Support for displaying submission data alongside schema
+  - Field display with validation rules and options
+  - Statistics and metadata display
+  - Viewer demo page at `/using-library/viewer-demo`
+  - API documentation in `koder/viewer-design/VIEWER_API.md`
 - **Documentation & Examples (Complete)**:
   - LIBRARY_USAGE.md - Comprehensive library usage guide (924 lines)
   - Code examples directory with 6 practical examples
