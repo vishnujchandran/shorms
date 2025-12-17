@@ -12,16 +12,18 @@
   - testing infrastructure (Vitest with 17 passing tests)
   - schema versioning system with forward compatibility
   - library exports (index.ts) for external usage
-- **CURRENT STATUS**: Phase 1 Component Extraction Complete! (Dec 15, 2025)
-  - ✅ Phase 1 COMPLETE: Renderer component extracted and integrated
-  - New namespace: components/shorms/renderer/ + shadcn-renderer.tsx
-  - Implements API Design v3.1.0 (koder/API_DESIGN.md)
-  - Features: state management, validation, suggestions, background jobs
-  - Playwright testing: 12/12 tests passing
-  - ShadcnRenderer integrated into main app (replaces FormRunner)
-  - Schema adapter for legacy format conversion
-  - **READY FOR LIBRARY USE** - Renderer is production-ready
-  - Next: Phase 2 - Extract Builder component (FormEditor)
+- **CURRENT STATUS**: Phase 2 Component Extraction Complete! (Dec 16, 2025)
+  - ✅ Phase 2 COMPLETE: Builder component extracted with controlled API
+  - New namespace: components/shorms/builder/ + shadcn-builder.tsx
+  - Zero dependency on Zustand - fully controlled component
+  - Components: Builder, PageTabs, FieldLibrary, FormContext
+  - useBuilderState hook for convenient state management
+  - Demo pages: /using-library/builder-demo and /using-library/renderer-demo
+  - API Design v1.0.0 (koder/builder-design/BUILDER_API.md)
+  - Build passing: 0 TypeScript errors
+  - **READY FOR LIBRARY USE** - Builder is production-ready
+  - Previous: Phase 1 - Renderer (12/12 Playwright tests passing)
+  - Next: Write Playwright tests for Builder OR Phase 3 - Extract Viewer component
 - review koder/NEXT_SESSION.md for current state and next steps
 - review the repo and give me a clear summary of what you understood
   before starting/resuming the work

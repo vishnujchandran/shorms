@@ -12,7 +12,7 @@ import {
   ShadcnRenderer,
   useBuilderState,
   type FormPage
-} from 'shorms'
+} from '@/index'
 import { useState } from 'react'
 
 type Mode = 'build' | 'preview'

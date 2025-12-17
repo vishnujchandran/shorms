@@ -7,7 +7,7 @@
 
 'use client'
 
-import { ShadcnBuilder, useBuilderState, type FormPage } from 'shorms'
+import { ShadcnBuilder, useBuilderState, type FormPage } from '@/index'
 import { useState } from 'react'
 
 // Example: Import a contact form schema

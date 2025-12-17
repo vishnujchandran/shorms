@@ -7,7 +7,7 @@
 
 'use client'
 
-import { ShadcnBuilder, useBuilderState, type FormPage } from 'shorms'
+import { ShadcnBuilder, useBuilderState, type FormPage } from '@/index'
 import { useEffect, useState } from 'react'
 
 const STORAGE_KEY = 'shorms-builder-state'

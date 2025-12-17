@@ -7,7 +7,7 @@
 
 'use client'
 
-import { ShadcnRenderer, type FormPage } from 'shorms'
+import { ShadcnRenderer, type FormPage } from '@/index'
 import { useState } from 'react'
 
 // Example: Import a feedback survey schema

@@ -7,7 +7,7 @@
 
 'use client'
 
-import { ShadcnBuilder, useBuilderState } from 'shorms'
+import { ShadcnBuilder, useBuilderState } from '@/index'
 
 export default function BasicBuilderExample() {
   // Initialize builder with default state
