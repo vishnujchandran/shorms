@@ -82,3 +82,23 @@
     @apply min-h-screen bg-background font-sans text-foreground antialiased;
   }
 }
+
+/* Shiki syntax highlighting */
+.shiki,
+.shiki code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* Shiki dual-theme: light mode */
+.shiki,
+.shiki span {
+  color: var(--shiki-light);
+  background-color: var(--shiki-light-bg);
+}
+
+/* Shiki dual-theme: dark mode */
+html.dark .shiki,
+html.dark .shiki span {
+  color: var(--shiki-dark);
+  background-color: var(--shiki-dark-bg);
+}
