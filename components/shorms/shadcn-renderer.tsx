@@ -274,7 +274,26 @@ export function ShadcnRenderer({ className, ...props }: ShadcnRendererProps) {
   }, [])
 
   return (
-    <div className={cn('w-full max-w-2xl mx-auto', className)}>
+    <div className={cn('w-full max-w-2xl mx-auto shadcn-renderer-wrapper', className)}>
+      <style jsx global>{`
+        .shadcn-renderer-wrapper form button[type="button"],
+        .shadcn-renderer-wrapper form button[type="submit"] {
+          @apply inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+          @apply h-10 px-4 py-2;
+        }
+
+        .shadcn-renderer-wrapper form button[type="button"] {
+          @apply border border-input bg-background hover:bg-accent hover:text-accent-foreground;
+        }
+
+        .shadcn-renderer-wrapper form button[type="submit"] {
+          @apply bg-primary text-primary-foreground hover:bg-primary/90;
+        }
+
+        .shadcn-renderer-wrapper form button[type="button"]:disabled {
+          @apply opacity-50 cursor-not-allowed;
+        }
+      `}</style>
       <Renderer
         {...props}
         renderField={renderField}
