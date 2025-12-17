@@ -5,7 +5,7 @@
 
 'use client'
 
-import { ShadcnViewer, type ViewMode, type FormPage } from '@/index'
+import { Viewer, type ViewMode, type FormPage } from '@/index'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
@@ -148,7 +148,7 @@ export default function ViewerDemoPage() {
         </div>
 
         {/* Viewer Component */}
-        <ShadcnViewer
+        <Viewer
           pages={feedbackSurvey as FormPage[]}
           submissionData={showSubmission ? exampleSubmission : undefined}
           mode={mode}

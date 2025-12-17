@@ -11,28 +11,14 @@
 // Type Definitions
 // ============================================================================
 
-/**
- * Field types and form structure definitions
- */
 export { FieldType } from './types/field'
 export type { FormField } from './types/field'
 export type { FormState, FormPage } from './types/form-store'
-
-// Note: ShormsSchema is not available in legacy types
-// Use the new Renderer types for the full schema with versioning
 
 // ============================================================================
 // Schema Versioning
 // ============================================================================
 
-/**
- * Schema versioning system for forward compatibility
- *
- * - validateSchema: Validate schema structure and field types
- * - migrateSchema: Migrate schemas between versions
- * - isSupportedFieldType: Check if field type is supported
- * - getUnsupportedFields: Find unsupported fields in schema
- */
 export {
   SCHEMA_VERSION,
   SUPPORTED_VERSIONS,
@@ -49,13 +35,6 @@ export {
 // Schema Generation
 // ============================================================================
 
-/**
- * Zod schema generation utilities
- *
- * - generateZodSchema: Generate Zod validation schema from form fields
- * - generateDefaultValues: Generate default values for form fields
- * - getZodSchemaString: Get string representation of Zod schema
- */
 export {
   generateZodSchema,
   generateDefaultValues,
@@ -63,72 +42,40 @@ export {
 } from './lib/form-schema'
 
 // ============================================================================
-// React Components
-// ============================================================================
-
-/**
- * Shorms Renderer - Form rendering component with validation and suggestions
- *
- * Note: The Renderer uses a new API design (v3.1.0) with extensible field types
- * and advanced features like state management, suggestions, and background jobs.
- *
- * For the new API types, import from '@/components/shorms/renderer' or see API_DESIGN.md
- */
-export { Renderer } from './components/shorms/renderer'
-export { ShadcnRenderer } from './components/shorms/shadcn-renderer'
-export type {
-  // Note: These types from the new renderer may conflict with legacy types above
-  // Use qualified imports if needed: import type { FormField as RendererFormField } from '@/components/shorms/renderer'
-  RendererProps,
-  FormStateAPI,
-  FieldSuggestionState,
-  BulkSuggestResponse,
-  BackgroundJob,
-  ShormsSchema,
-  FormValues,
-} from './components/shorms/renderer'
-
-// ============================================================================
 // Schema Adapters
 // ============================================================================
 
-/**
- * Schema adapter utilities for converting between legacy and new formats
- *
- * - formPagesToSchema: Convert legacy FormPage[] to new ShormsSchema
- * - schemaToFormPages: Convert new ShormsSchema to legacy FormPage[]
- */
 export {
   formPagesToSchema,
   schemaToFormPages,
 } from './lib/schema-adapter'
 
 // ============================================================================
-// Builder Components (Phase 2 - Complete)
+// Main Components (shadcn/ui styled - default)
 // ============================================================================
 
 /**
- * Form Builder - Interactive form builder component with no internal global state
- *
- * - Builder: Main controlled builder component
- * - ShadcnBuilder: High-level wrapper with shadcn/ui styling
- * - useBuilderState: Convenience hook for state management
- * - FieldLibrary: Field template sidebar
- * - FormContext: Form statistics sidebar
- * - PageTabs: Page management UI
+ * Builder - Form builder with shadcn/ui styling
+ * Renderer - Form renderer with shadcn/ui styling
+ * Viewer - Form viewer with shadcn/ui styling
  */
+export { ShadcnBuilder as Builder } from './components/shorms/shadcn-builder'
+export { ShadcnRenderer as Renderer } from './components/shorms/shadcn-renderer'
+export { ShadcnViewer as Viewer } from './components/shorms/shadcn-viewer'
+
+// ============================================================================
+// Builder Utilities
+// ============================================================================
+
 export {
-  Builder,
-  FieldLibrary,
-  FormContext,
-  PageTabs,
   useBuilderState,
   defaultFieldTemplates,
   fieldCategories,
   widthClasses,
+  FieldLibrary,
+  FormContext,
+  PageTabs,
 } from './components/shorms/builder'
-
-export { ShadcnBuilder } from './components/shorms/shadcn-builder'
 
 export type {
   BuilderProps,
@@ -141,19 +88,24 @@ export type {
 } from './components/shorms/builder'
 
 // ============================================================================
-// Viewer Components (Phase 3 - Complete)
+// Renderer Types
 // ============================================================================
 
-/**
- * Form Viewer - Read-only display for form schemas and submissions
- *
- * - Viewer: Main controlled viewer component
- * - ShadcnViewer: High-level wrapper with shadcn/ui styling
- * - Multiple view modes: detailed, compact, summary
- * - Display form submissions with formatted data
- */
+export type {
+  RendererProps,
+  FormStateAPI,
+  FieldSuggestionState,
+  BulkSuggestResponse,
+  BackgroundJob,
+  ShormsSchema,
+  FormValues,
+} from './components/shorms/renderer'
+
+// ============================================================================
+// Viewer Utilities
+// ============================================================================
+
 export {
-  Viewer,
   FieldDisplay,
   formatFieldValue,
   getValidationSummary,
@@ -161,11 +113,32 @@ export {
   getFieldTypeLabel,
 } from './components/shorms/viewer'
 
-export { ShadcnViewer, type ShadcnViewerProps } from './components/shorms/shadcn-viewer'
+export type { ViewMode, ViewerMetadata, FormStatistics } from './components/shorms/viewer'
+export type { ShadcnViewerProps as ViewerProps } from './components/shorms/shadcn-viewer'
 
-export type {
-  ViewMode,
-  ViewerProps,
-  ViewerMetadata,
-  FormStatistics,
-} from './components/shorms/viewer'
+// ============================================================================
+// Headless Components (for custom UI implementations)
+// ============================================================================
+
+import { Builder as HeadlessBuilder } from './components/shorms/builder'
+import { Renderer as HeadlessRenderer } from './components/shorms/renderer'
+import { Viewer as HeadlessViewer } from './components/shorms/viewer'
+
+/**
+ * Headless components for building custom UI implementations
+ *
+ * @example
+ * ```tsx
+ * import { Headless } from 'shorms'
+ *
+ * // Use with your own UI library (DaisyUI, Chakra, etc.)
+ * <Headless.Builder pages={pages} ... />
+ * <Headless.Renderer pages={pages} ... />
+ * <Headless.Viewer pages={pages} ... />
+ * ```
+ */
+export const Headless = {
+  Builder: HeadlessBuilder,
+  Renderer: HeadlessRenderer,
+  Viewer: HeadlessViewer,
+} as const
