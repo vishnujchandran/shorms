@@ -26,6 +26,10 @@ export function Viewer({
   metadata,
   className = '',
   width = 'lg',
+  onPrevious,
+  onNext,
+  onSubmit,
+  showToolbar = true,
 }: ViewerProps) {
   const [activePage, setActivePage] = useState(0)
   const stats = getFormStatistics(pages)
@@ -245,8 +249,8 @@ export function Viewer({
         </div>
 
         {/* Footer with stats */}
-        <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-lg">
-          <div className="flex justify-between text-sm text-gray-600">
+        <div className="px-6 py-3 bg-gray-50 border-t border-gray-200 text-sm text-gray-600">
+          <div className="flex justify-between">
             <div>
               {stats.totalPages} page{stats.totalPages !== 1 ? 's' : ''} •{' '}
               {stats.totalFields} field{stats.totalFields !== 1 ? 's' : ''} •{' '}
@@ -259,6 +263,47 @@ export function Viewer({
             )}
           </div>
         </div>
+
+        {/* Bottom Toolbar */}
+        {showToolbar && (
+          <div className="px-6 py-4 bg-white border-t border-gray-200 rounded-b-lg">
+            <div className="flex justify-between items-center">
+              <button
+                onClick={() => {
+                  if (onPrevious) {
+                    onPrevious()
+                  } else if (activePage > 0) {
+                    setActivePage(activePage - 1)
+                  }
+                }}
+                disabled={activePage === 0}
+                className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+                  activePage === 0
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                Previous
+              </button>
+
+              <button
+                onClick={() => {
+                  const isLastPage = activePage === pages.length - 1
+                  if (isLastPage) {
+                    onSubmit?.()
+                  } else if (onNext) {
+                    onNext()
+                  } else {
+                    setActivePage(activePage + 1)
+                  }
+                }}
+                className="px-6 py-2 rounded-lg font-medium text-sm bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+              >
+                {activePage === pages.length - 1 ? 'Submit' : 'Next'}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

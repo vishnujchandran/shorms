@@ -262,19 +262,15 @@ export default function UsingLibraryPage() {
               <DialogHeader className="p-6 pb-2">
                 <DialogTitle>Schema Viewer</DialogTitle>
               </DialogHeader>
-              <ScrollArea className="flex-1 p-6 pt-2">
+              <div className="flex-1 overflow-hidden">
                 <ShadcnViewer
                   pages={pages}
                   mode="detailed"
                   showValidation={true}
                   showFieldTypes={true}
-                  showPageNavigation={true}
-                  metadata={{
-                    title: 'Form Schema',
-                    createdAt: new Date().toISOString(),
-                  }}
+                  title="Form Schema"
                 />
-              </ScrollArea>
+              </div>
             </DialogContent>
           </Dialog>
 

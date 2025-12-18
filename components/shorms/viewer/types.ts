@@ -57,6 +57,12 @@ export interface ViewerProps {
   // Optional: Styling
   className?: string
   width?: 'sm' | 'md' | 'lg' | 'xl' | 'full'
+
+  // Optional: Toolbar callbacks
+  onPrevious?: () => void
+  onNext?: () => void
+  onSubmit?: () => void
+  showToolbar?: boolean
 }
 
 /**

@@ -5,7 +5,9 @@
 
 'use client'
 
-import { Viewer, type ViewMode, type FormPage } from '@/index'
+import { Headless, type ViewMode, type FormPage } from '@/index'
+
+const { Viewer } = Headless
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
@@ -165,9 +167,6 @@ export default function ViewerDemoPage() {
             submittedBy: showSubmission ? 'john.doe@example.com' : undefined,
           }}
           width="full"
-          showExportButton={true}
-          showPrintButton={true}
-          onExport={handleExport}
         />
 
         {/* Info */}

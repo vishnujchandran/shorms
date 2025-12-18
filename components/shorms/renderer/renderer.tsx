@@ -49,6 +49,9 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
   // Ref to prevent submission immediately after navigation
   const justNavigatedRef = useRef(false)
 
+  // Ref for form element to allow external submit
+  const formElementRef = useRef<HTMLFormElement>(null)
+
   // Initialize form state
   const formState = useFormState({
     schema,
@@ -81,8 +84,7 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
     blocking: backgroundJobs?.blocking || false,
   })
 
-  // Expose form state API via ref
-  useImperativeHandle(formStateRef || ref, () => formState, [formState])
+  // Note: useImperativeHandle moved below after handlers are defined
 
   // Effect: Auto-save
   useEffect(() => {
@@ -242,6 +244,23 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
     }
   }, [formState, validation, onSubmit, currentPageIndex, schema.pages.length])
 
+  // Expose form state, navigation, and submit API via ref
+  useImperativeHandle(formStateRef || ref, () => ({
+    ...formState,
+    navigation: {
+      currentPageIndex,
+      totalPages: schema.pages.length,
+      onPrevious: handlePrevPage,
+      onNext: handleNextPage,
+      canGoPrevious: currentPageIndex > 0,
+      canGoNext: currentPageIndex < schema.pages.length - 1,
+      isLastPage: currentPageIndex === schema.pages.length - 1,
+    },
+    submit: () => {
+      formElementRef.current?.requestSubmit()
+    },
+  }), [formState, currentPageIndex, schema.pages.length, handlePrevPage, handleNextPage])
+
   // Handler: Bulk file upload
   const handleBulkFileUpload = useCallback(async (files: File[]) => {
     if (!onBulkSuggest) {
@@ -378,51 +397,55 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
 
   // Main render
   return (
-    <div className="w-full max-w-2xl mx-auto p-6">
+    <div className="w-full min-h-full flex flex-col">
       {/* Progress indicator */}
-      {renderProgress
-        ? renderProgress(currentPageIndex + 1, schema.pages.length, progress)
-        : renderProgressDefault(currentPageIndex + 1, schema.pages.length, progress)
-      }
+      <div className="px-6 pt-6">
+        {renderProgress
+          ? renderProgress(currentPageIndex + 1, schema.pages.length, progress)
+          : renderProgressDefault(currentPageIndex + 1, schema.pages.length, progress)
+        }
 
-      {/* Background job indicator */}
-      {backgroundJob.jobInfo?.isActive && (
-        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Analyzing your files...</p>
-              <p className="text-sm text-muted-foreground">
-                {backgroundJob.jobInfo.fieldsCompleted} of{' '}
-                {backgroundJob.jobInfo.fieldsCompleted + backgroundJob.jobInfo.fieldsPending} fields completed
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-sm font-medium">{Math.round(backgroundJob.jobInfo.progress * 100)}%</p>
-              {backgroundJob.jobInfo.estimatedTimeRemaining && (
-                <p className="text-xs text-muted-foreground">
-                  ~{Math.round(backgroundJob.jobInfo.estimatedTimeRemaining / 60)}m remaining
+        {/* Background job indicator */}
+        {backgroundJob.jobInfo?.isActive && (
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">Analyzing your files...</p>
+                <p className="text-sm text-muted-foreground">
+                  {backgroundJob.jobInfo.fieldsCompleted} of{' '}
+                  {backgroundJob.jobInfo.fieldsCompleted + backgroundJob.jobInfo.fieldsPending} fields completed
                 </p>
-              )}
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-medium">{Math.round(backgroundJob.jobInfo.progress * 100)}%</p>
+                {backgroundJob.jobInfo.estimatedTimeRemaining && (
+                  <p className="text-xs text-muted-foreground">
+                    ~{Math.round(backgroundJob.jobInfo.estimatedTimeRemaining / 60)}m remaining
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="mt-2">
+              <button
+                type="button"
+                onClick={() => backgroundJob.jobInfo && backgroundJob.cancelJob(backgroundJob.jobInfo.jobId)}
+                className="text-sm text-red-500 hover:text-red-700"
+              >
+                Cancel
+              </button>
             </div>
           </div>
-          <div className="mt-2">
-            <button
-              type="button"
-              onClick={() => backgroundJob.jobInfo && backgroundJob.cancelJob(backgroundJob.jobInfo.jobId)}
-              className="text-sm text-red-500 hover:text-red-700"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit}>
-        {renderPage
-          ? renderPage(currentPage, renderFields())
-          : renderPageDefault(currentPage, renderFields())
-        }
+      <form ref={formElementRef} onSubmit={handleSubmit} className="flex-1 flex flex-col px-6">
+        <div className="flex-1">
+          {renderPage
+            ? renderPage(currentPage, renderFields())
+            : renderPageDefault(currentPage, renderFields())
+          }
+        </div>
 
         {/* Navigation */}
         {renderNavigation ? (
@@ -436,7 +459,7 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
             isLastPage: currentPageIndex === schema.pages.length - 1,
           })
         ) : (
-          <div className="flex justify-between mt-8">
+          <div className="flex justify-between mt-8 py-4">
             <button
               type="button"
               onClick={handlePrevPage}

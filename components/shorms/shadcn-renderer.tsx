@@ -36,6 +36,11 @@ interface ShadcnRendererProps extends Omit<RendererProps, 'renderField' | 'rende
 }
 
 export function ShadcnRenderer({ className, title, description, ...props }: ShadcnRendererProps) {
+  // State to hold navigation props from Renderer
+  const [navProps, setNavProps] = React.useState<NavigationProps | null>(null)
+  const rendererRef = React.useRef<any>(null)
+  const pendingNavProps = React.useRef<NavigationProps | null>(null)
+
   // Custom field renderer using shadcn components
   const renderField = React.useCallback((field: ShormsFormField, value: any, onChange: (value: any) => void) => {
     return (
@@ -240,6 +245,9 @@ export function ShadcnRenderer({ className, title, description, ...props }: Shad
 
   // Custom page renderer
   const renderPage = React.useCallback((page: FormPage, children: React.ReactNode) => {
+    if (!page) {
+      return <div className="space-y-4">{children}</div>
+    }
     return (
       <div className="space-y-6">
         {page.title && (
@@ -257,70 +265,100 @@ export function ShadcnRenderer({ className, title, description, ...props }: Shad
     )
   }, [])
 
-  // Custom progress indicator
-  const renderProgress = React.useCallback((current: number, total: number, progress: number) => {
-    return (
-      <div className="space-y-2 mb-6">
-        <div className="flex justify-between text-sm text-muted-foreground">
-          <span>Step {current} of {total}</span>
-          <span>{Math.round(progress)}%</span>
-        </div>
-        <div className="h-2 bg-secondary rounded-full overflow-hidden">
-          <div
-            className="h-full bg-primary transition-all duration-300"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      </div>
-    )
+  // Progress is now in the toolbar, return null here
+  const renderProgress = React.useCallback(() => null, [])
+
+  // Capture navigation props from Renderer, render nothing inside
+  const renderNavigation = React.useCallback((props: NavigationProps) => {
+    // Store in ref during render, will be synced to state via useLayoutEffect
+    pendingNavProps.current = props
+    return null // Don't render anything inside Renderer
   }, [])
 
-  // Custom navigation with shadcn buttons
-  const renderNavigation = React.useCallback((navProps: NavigationProps) => {
-    return (
-      <div className="flex justify-between mt-8">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={navProps.onPrevious}
-          disabled={!navProps.canGoPrevious}
-        >
-          <ChevronLeft className="mr-2 h-4 w-4" />
-          Previous
-        </Button>
+  // Sync navigation props from ref to state after render (only when changed)
+  React.useLayoutEffect(() => {
+    const pending = pendingNavProps.current
+    if (pending && (
+      !navProps ||
+      pending.currentPageIndex !== navProps.currentPageIndex ||
+      pending.totalPages !== navProps.totalPages ||
+      pending.isLastPage !== navProps.isLastPage
+    )) {
+      setNavProps(pending)
+    }
+  })
 
-        {navProps.isLastPage ? (
-          <Button type="submit">
-            Submit
-          </Button>
-        ) : (
-          <Button
-            type="button"
-            onClick={navProps.onNext}
-          >
-            Next
-            <ChevronRight className="ml-2 h-4 w-4" />
-          </Button>
-        )}
-      </div>
-    )
+  // Handle submit from external toolbar
+  const handleToolbarSubmit = React.useCallback(() => {
+    rendererRef.current?.submit()
   }, [])
+
+  // Calculate progress for toolbar
+  const progress = navProps
+    ? (navProps.currentPageIndex / Math.max(navProps.totalPages - 1, 1)) * 100
+    : 0
 
   return (
-    <div className={cn('w-full mx-auto', className || 'max-w-2xl')}>
+    <div className={cn('w-full h-full flex flex-col', className)}>
+      {/* Navbar - fixed at top, edge to edge */}
       {(title || description) && (
-        <div className="mb-6">
-          {title && <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>}
-          {description && <p className="text-sm text-muted-foreground mt-1">{description}</p>}
+        <div className="shrink-0 px-6 py-4 border-b bg-background">
+          {title && <h2 className="text-lg font-semibold tracking-tight">{title}</h2>}
+          {description && <p className="text-sm text-muted-foreground">{description}</p>}
         </div>
       )}
-      <Renderer
-        {...props}
-        renderField={renderField}
-        renderPage={renderPage}
-        renderProgress={renderProgress}
-        renderNavigation={renderNavigation}
-      />
+
+      {/* Scrollable content area */}
+      <div className="flex-1 overflow-auto">
+        <Renderer
+          {...props}
+          ref={rendererRef}
+          renderField={renderField}
+          renderPage={renderPage}
+          renderProgress={renderProgress}
+          renderNavigation={renderNavigation}
+        />
+      </div>
+
+      {/* Fixed toolbar at bottom */}
+      {navProps && (
+        <div className="shrink-0 px-6 py-4 border-t bg-background">
+          <div className="flex items-center gap-4">
+            {/* Left: Previous button */}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={navProps.onPrevious}
+              disabled={!navProps.canGoPrevious}
+              className={`w-32 ${!navProps.canGoPrevious ? 'invisible' : ''}`}
+            >
+              <ChevronLeft className="mr-2 h-4 w-4" />
+              Previous
+            </Button>
+
+            {/* Center: Progress bar */}
+            <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
+              <div
+                className="h-full bg-primary transition-all duration-300"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+
+            {/* Right: Next/Submit button */}
+            {navProps.isLastPage ? (
+              <Button type="button" onClick={handleToolbarSubmit} className="w-32">
+                Submit
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
+            ) : (
+              <Button type="button" onClick={navProps.onNext} className="w-32">
+                Next
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
