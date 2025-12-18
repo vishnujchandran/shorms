@@ -1,6 +1,6 @@
 import * as React from "react"
 import { useFormStore } from "@/stores/form"
-import { GripVertical, PenIcon, Trash2 } from "lucide-react"
+import { Check, GripVertical, PenIcon, Trash2 } from "lucide-react"
 import type { UseFormReturn } from "react-hook-form"
 import { useShallow } from "zustand/shallow"
 
@@ -33,14 +33,63 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
     const { deleteFormField, setSelectedFormField, setIsEditFormFieldOpen } =
       useFormStore(useShallow(selector))
 
-    const handleDelete = () => {
-      if (!formField.id) return
-      if (onDelete) {
-        onDelete(formField.id)
-      } else {
-        deleteFormField(formField.id)
+    const [pendingDelete, setPendingDelete] = React.useState(false)
+    const timeoutRef = React.useRef<NodeJS.Timeout | null>(null)
+
+    const clearDeleteTimeout = () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
       }
     }
+
+    const handleDelete = () => {
+      if (!formField.id) return
+
+      if (pendingDelete) {
+        // Second click - actually delete
+        clearDeleteTimeout()
+        if (onDelete) {
+          onDelete(formField.id)
+        } else {
+          deleteFormField(formField.id)
+        }
+      } else {
+        // First click - set pending state
+        setPendingDelete(true)
+      }
+    }
+
+    const handleDeleteMouseLeave = () => {
+      if (pendingDelete) {
+        // Start 3s timeout to reset
+        clearDeleteTimeout()
+        timeoutRef.current = setTimeout(() => {
+          setPendingDelete(false)
+        }, 3000)
+      }
+    }
+
+    const handleDeleteMouseEnter = () => {
+      if (pendingDelete) {
+        // Cancel timeout if mouse comes back
+        clearDeleteTimeout()
+      }
+    }
+
+    React.useEffect(() => {
+      return () => {
+        clearDeleteTimeout()
+      }
+    }, [])
+
+    // Reset pending delete state when dragging starts
+    React.useEffect(() => {
+      if (isDragging && pendingDelete) {
+        clearDeleteTimeout()
+        setPendingDelete(false)
+      }
+    }, [isDragging, pendingDelete])
 
     const handleEdit = () => {
       if (!formField.id) return
@@ -55,15 +104,19 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
     return (
       <div
         className={cn(
-          "group relative flex items-center gap-2 rounded-md border-2 border-dashed border-transparent",
+          "group relative flex items-center gap-2 rounded-md border-2 border-dashed border-transparent transition-colors",
           {
             "rounded-md border-foreground bg-muted opacity-60": isDragging,
+            "bg-destructive/10": pendingDelete,
           }
         )}
         style={style}
         ref={ref}
       >
-        <div className="absolute -left-12 top-1/2 flex -translate-y-1/2 flex-col gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+        <div className={cn(
+          "absolute -left-12 top-1/2 flex -translate-y-1/2 flex-col gap-1 transition-opacity",
+          pendingDelete ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+        )}>
           <TooltipWrapper text="Edit field">
             <Button
               size="icon"
@@ -75,15 +128,26 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
               <PenIcon className="size-4" />
             </Button>
           </TooltipWrapper>
-          <TooltipWrapper text="Delete field" side="bottom">
+          <TooltipWrapper text={pendingDelete ? "Click again to confirm" : "Delete field"} side="bottom">
             <Button
               size="icon"
               variant="secondary"
               onClick={handleDelete}
+              onMouseLeave={handleDeleteMouseLeave}
+              onMouseEnter={handleDeleteMouseEnter}
               type="button"
-              className="h-8 w-8 hover:bg-destructive hover:text-destructive-foreground"
+              className={cn(
+                "h-8 w-8 transition-colors",
+                pendingDelete
+                  ? "bg-destructive text-destructive-foreground hover:bg-destructive hover:text-destructive-foreground"
+                  : "hover:bg-destructive hover:text-destructive-foreground"
+              )}
             >
-              <Trash2 className="size-4" />
+              {pendingDelete ? (
+                <Check className="size-4" />
+              ) : (
+                <Trash2 className="size-4" />
+              )}
             </Button>
           </TooltipWrapper>
         </div>

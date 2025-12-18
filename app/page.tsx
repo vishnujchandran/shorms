@@ -57,6 +57,7 @@ export default function Home() {
   const [selectedFile, setSelectedFile] = React.useState<File | null>(null)
   const [editFieldId, setEditFieldId] = React.useState<string | null>(null)
   const [editPanelOpen, setEditPanelOpen] = React.useState(false)
+  const [clearDialogOpen, setClearDialogOpen] = React.useState(false)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
 
   const builderState = useBuilderState()
@@ -219,6 +220,7 @@ export default function Home() {
 
   const handleClear = () => {
     reset()
+    setClearDialogOpen(false)
     toast({
       description: 'Form cleared successfully!',
     })
@@ -381,15 +383,40 @@ export default function Home() {
             </Dialog>
           </div>
 
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={handleClear}
-            title="Clear Form"
-            className="h-8 px-2"
-          >
-            <Trash2 className="size-3.5" />
-          </Button>
+          <Dialog open={clearDialogOpen} onOpenChange={setClearDialogOpen}>
+            <DialogTrigger asChild>
+              <Button
+                size="sm"
+                variant="ghost"
+                title="Clear Form"
+                className="h-8 px-2"
+              >
+                <Trash2 className="size-3.5" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Clear Form</DialogTitle>
+                <DialogDescription>
+                  Are you sure you want to clear the entire form? This action cannot be undone.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex justify-end gap-2 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setClearDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={handleClear}
+                >
+                  Clear Form
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
 
           <Separator orientation="vertical" className="h-5" />
           <ModeToggle />
