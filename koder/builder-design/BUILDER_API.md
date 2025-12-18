@@ -370,7 +370,7 @@ function HomePage() {
 ### New Library-based App
 
 ```typescript
-// app/using-library/builder-demo/page.tsx
+// app/builder/page.tsx
 'use client'
 
 import { ShadcnBuilder } from '@/components/shorms/shadcn-builder'
@@ -429,7 +429,7 @@ function BuilderDemoPage() {
 7. Create main `builder.tsx` component
 8. Create `use-builder-state.ts` hook
 9. Create `shadcn-builder.tsx` wrapper
-10. Test in `/using-library/builder-demo`
+10. Test in `/builder`
 11. Update main app to use new Builder (optional)
 12. Write Playwright tests
 

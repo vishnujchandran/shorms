@@ -911,8 +911,8 @@ Generate a Zod validation schema from form fields.
 ## Next Steps
 
 - See [BUILDER_API.md](koder/builder-design/BUILDER_API.md) for complete Builder API reference
-- Check `/using-library/builder-demo` for live Builder demo
-- Check `/using-library/renderer-demo` for live Renderer demo
+- Check `/builder` for live Builder demo
+- Check `/renderer` for live Renderer demo
 - Explore examples in `/examples` directory
 - Review [CHANGELOG.md](CHANGELOG.md) for version history
 

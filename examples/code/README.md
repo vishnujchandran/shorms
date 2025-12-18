@@ -97,4 +97,4 @@ All examples include full TypeScript types. Make sure your `tsconfig.json` has:
 
 - See [LIBRARY_USAGE.md](../../LIBRARY_USAGE.md) for comprehensive documentation
 - Check [BUILDER_API.md](../../koder/builder-design/BUILDER_API.md) for API reference
-- Visit the live demos at `/using-library/builder-demo` and `/using-library/renderer-demo`
+- Visit the live demos at `/builder` and `/renderer`
