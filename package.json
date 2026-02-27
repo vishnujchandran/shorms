@@ -4,11 +4,20 @@
   "description": "Local-first multi-page form builder for shadcn/ui and React Hook Form",
   "author": "Shorms Contributors",
   "license": "MIT",
-  "main": "./index.ts",
-  "types": "./index.ts",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "tsup",
+    "build:lib": "tsup",
+    "build:next": "next build",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
@@ -18,7 +27,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:headed": "playwright test --headed"
+    "test:e2e:headed": "playwright test --headed",
+    "prepublishOnly": "pnpm build:lib"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",
@@ -68,6 +78,7 @@
   },
   "devDependencies": {
     "@commitlint/cli": "^19.5.0",
+    "tsup": "^8.3.5",
     "@commitlint/config-conventional": "^19.5.0",
     "@ianvs/prettier-plugin-sort-imports": "^4.3.1",
     "@playwright/test": "^1.57.0",

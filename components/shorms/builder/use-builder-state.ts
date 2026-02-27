@@ -233,20 +233,20 @@ export function useBuilderState(initialPages?: FormPage[]) {
     // State
     pages,
     activePageId,
-    setPages,
-    setActivePageId,
+    onPagesChange: setPages,
+    onActivePageChange: setActivePageId,
 
-    // Page operations
-    addPage,
-    deletePage,
-    updatePageTitle,
-    reorderPages,
+    // Page operations (with "on" prefix to match Builder props)
+    onPageAdd: addPage,
+    onPageDelete: deletePage,
+    onPageRename: (pageId: string, title: string) => updatePageTitle(pageId, title),
+    onPageReorder: reorderPages,
 
-    // Field operations
-    addField,
-    updateField,
-    deleteField,
-    reorderFields,
+    // Field operations (with "on" prefix to match Builder props)
+    onFieldAdd: addField,
+    onFieldUpdate: (fieldId: string, updates: Partial<FormField>) => updateField(fieldId, updates),
+    onFieldDelete: deleteField,
+    onFieldReorder: reorderFields,
 
     // Utility
     getActivePage,
