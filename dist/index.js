@@ -1377,6 +1377,7 @@ function renderFormFieldComponent({
       ] });
   }
 }
+var TooltipProvider = TooltipPrimitive.Provider;
 var Tooltip = TooltipPrimitive.Root;
 var TooltipTrigger = TooltipPrimitive.Trigger;
 var TooltipContent = React3.forwardRef((_a, ref) => {
@@ -2797,7 +2798,7 @@ function useBuilderState(initialPages) {
   };
 }
 function ShadcnBuilder(props) {
-  return /* @__PURE__ */ jsx(Builder, __spreadValues({}, props));
+  return /* @__PURE__ */ jsx(TooltipProvider, { children: /* @__PURE__ */ jsx(Builder, __spreadValues({}, props)) });
 }
 ShadcnBuilder.displayName = "ShadcnBuilder";
 function useFormState(options) {
@@ -4239,7 +4240,8 @@ var Renderer = React3__default.forwardRef((props, ref) => {
 });
 Renderer.displayName = "Renderer";
 function ShadcnRenderer(_a) {
-  var _b = _a, { className, title, description } = _b, props = __objRest(_b, ["className", "title", "description"]);
+  var _b = _a, { className, title, description, schema, pages } = _b, props = __objRest(_b, ["className", "title", "description", "schema", "pages"]);
+  const finalSchema = schema || (pages ? formPagesToSchema(pages) : { version: "3.1.0", pages: [] });
   const [navProps, setNavProps] = React3.useState(null);
   const rendererRef = React3.useRef(null);
   const pendingNavProps = React3.useRef(null);
@@ -4442,6 +4444,7 @@ function ShadcnRenderer(_a) {
     /* @__PURE__ */ jsx("div", { className: "flex-1 overflow-auto", children: /* @__PURE__ */ jsx(
       Renderer,
       __spreadProps(__spreadValues({}, props), {
+        schema: finalSchema,
         ref: rendererRef,
         renderField,
         renderPage,

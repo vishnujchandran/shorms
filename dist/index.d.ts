@@ -589,9 +589,11 @@ declare const fieldCategories: {
  * This component provides the same interface as Builder but with additional
  * conveniences and defaults optimized for shadcn/ui projects
  *
+ * Includes TooltipProvider to support tooltip functionality in field components
+ *
  * @example
  * ```tsx
- * import { ShadcnBuilder, useBuilderState } from '@/components/shorms'
+ * import { ShadcnBuilder, useBuilderState } from 'shorms'
  *
  * function App() {
  *   const builder = useBuilderState()
@@ -600,12 +602,12 @@ declare const fieldCategories: {
  *     <ShadcnBuilder
  *       pages={builder.pages}
  *       activePageId={builder.activePageId}
- *       onPagesChange={builder.setPages}
- *       onActivePageChange={builder.setActivePageId}
- *       onPageAdd={builder.addPage}
- *       onPageDelete={builder.deletePage}
- *       onPageRename={builder.updatePageTitle}
- *       onFieldAdd={builder.addField}
+ *       onPagesChange={builder.onPagesChange}
+ *       onActivePageChange={builder.onActivePageChange}
+ *       onPageAdd={builder.onPageAdd}
+ *       onPageDelete={builder.onPageDelete}
+ *       onPageRename={builder.onPageRename}
+ *       onFieldAdd={builder.onFieldAdd}
  *       width="full"
  *     />
  *   )
@@ -617,12 +619,14 @@ declare namespace ShadcnBuilder {
     var displayName: string;
 }
 
-interface ShadcnRendererProps extends Omit<RendererProps, 'renderField' | 'renderPage' | 'renderProgress'> {
+interface ShadcnRendererProps extends Omit<RendererProps, 'renderField' | 'renderPage' | 'renderProgress' | 'schema'> {
     className?: string;
     title?: string;
     description?: string;
+    schema?: ShormsSchema;
+    pages?: FormPage$2[];
 }
-declare function ShadcnRenderer({ className, title, description, ...props }: ShadcnRendererProps): react_jsx_runtime.JSX.Element;
+declare function ShadcnRenderer({ className, title, description, schema, pages, ...props }: ShadcnRendererProps): react_jsx_runtime.JSX.Element;
 
 interface ShadcnViewerProps {
     pages: FormPage$2[];

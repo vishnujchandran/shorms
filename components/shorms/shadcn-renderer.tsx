@@ -7,7 +7,9 @@
 
 import * as React from 'react'
 import { Renderer } from './renderer'
-import type { RendererProps, FormField as ShormsFormField, FormPage, NavigationProps } from './renderer/types'
+import type { RendererProps, FormField as ShormsFormField, FormPage, NavigationProps, ShormsSchema } from './renderer/types'
+import type { FormPage as LegacyFormPage } from '@/types/form-store'
+import { formPagesToSchema } from '@/lib/schema-adapter'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -29,13 +31,18 @@ import { cn } from '@/lib/utils'
 import { CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react'
 import { format } from 'date-fns'
 
-interface ShadcnRendererProps extends Omit<RendererProps, 'renderField' | 'renderPage' | 'renderProgress'> {
+interface ShadcnRendererProps extends Omit<RendererProps, 'renderField' | 'renderPage' | 'renderProgress' | 'schema'> {
   className?: string
   title?: string
   description?: string
+  // Support both schema and pages for backward compatibility
+  schema?: ShormsSchema
+  pages?: LegacyFormPage[]
 }
 
-export function ShadcnRenderer({ className, title, description, ...props }: ShadcnRendererProps) {
+export function ShadcnRenderer({ className, title, description, schema, pages, ...props }: ShadcnRendererProps) {
+  // Convert pages to schema if pages is provided (backward compatibility)
+  const finalSchema = schema || (pages ? formPagesToSchema(pages) : { version: '3.1.0', pages: [] })
   // State to hold navigation props from Renderer
   const [navProps, setNavProps] = React.useState<NavigationProps | null>(null)
   const rendererRef = React.useRef<any>(null)
@@ -312,6 +319,7 @@ export function ShadcnRenderer({ className, title, description, ...props }: Shad
       <div className="flex-1 overflow-auto">
         <Renderer
           {...props}
+          schema={finalSchema}
           ref={rendererRef}
           renderField={renderField}
           renderPage={renderPage}
