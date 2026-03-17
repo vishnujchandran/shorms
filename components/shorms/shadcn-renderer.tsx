@@ -83,8 +83,6 @@ export function ShadcnRenderer({
   const [totalPages, setTotalPages] = React.useState(
     props.schema?.pages?.length ?? 1
   )
-  const [, forceUpdate] = React.useReducer((x) => x + 1, 0)
-
   const rendererRef = React.useRef<any>(null)
   const pendingNavProps = React.useRef<NavigationProps | null>(null)
   const lastNavProps = React.useRef<NavigationProps | null>(null)
@@ -423,7 +421,7 @@ export function ShadcnRenderer({
         lastNavProps.current = current
       }
     }
-  })
+  }, [])
 
   // Handle submit from external toolbar
   const handleToolbarSubmit = React.useCallback(() => {
