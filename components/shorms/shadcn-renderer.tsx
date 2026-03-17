@@ -9,7 +9,6 @@ import { format } from "date-fns"
 import {
   CalendarIcon,
   CheckIcon,
-  ChevronLeft,
   ChevronRight,
   ChevronsUpDownIcon,
 } from "lucide-react"
@@ -432,12 +431,7 @@ export function ShadcnRenderer({
   const toolbarNavProps = pendingNavProps.current
   const derivedTotalPages = totalPages
   const derivedCurrentIndex = currentPageIndex
-  const derivedIsFirst = derivedCurrentIndex === 0
   const derivedIsLast = derivedCurrentIndex >= derivedTotalPages - 1
-
-  // Previous button: show only on multi-page forms, not on first page
-  const showPrevious = derivedTotalPages > 1 && !derivedIsFirst
-  const derivedCanPrevious = derivedTotalPages > 1 && !derivedIsFirst
 
   // Next button: show only on multi-page forms, not on last page
   const showNext = derivedTotalPages > 1 && !derivedIsLast
@@ -477,20 +471,6 @@ export function ShadcnRenderer({
       {derivedTotalPages > 0 && (
         <div className="shrink-0 border-t bg-background px-6 py-4">
           <div className="flex items-center gap-4">
-            {/* Left: Previous button - only show on multi-page forms, not first page */}
-            {showPrevious && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={toolbarNavProps?.onPrevious}
-                disabled={!derivedCanPrevious || !toolbarNavProps}
-                className="w-32"
-              >
-                <ChevronLeft className="mr-2 h-4 w-4" />
-                Previous
-              </Button>
-            )}
-
             {/* Center: Progress bar */}
             <div className="h-2 flex-1 overflow-hidden rounded-full bg-secondary">
               <div
@@ -519,7 +499,7 @@ export function ShadcnRenderer({
                 onClick={handleToolbarSubmit}
                 className="w-32"
               >
-                Submit
+                Next
                 <ChevronRight className="ml-2 h-4 w-4" />
               </Button>
             )}
