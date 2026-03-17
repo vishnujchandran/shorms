@@ -1,0 +1,6 @@
+- symlinked to GEMINI.md and AGENTS.md
+- keep short — loaded on every request
+- LLM agent runs in a restricted container (see `~/.info.json`)
+- use externally mapped ports to start servers
+- project state: `koder/STATE.md`
+- knowledge base: `koder/knowledge-base/INDEX.md`
