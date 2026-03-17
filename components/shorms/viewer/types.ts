@@ -3,7 +3,7 @@
  * Read-only display for form schemas and submissions
  */
 
-import type { FormPage } from '@/types/form-store'
+import type { FormPage } from '../../../types/form-store'
 
 /**
  * View modes for the Viewer component

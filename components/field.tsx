@@ -1,17 +1,17 @@
 import * as React from "react"
-import { useFormStore } from "@/stores/form"
+import { useFormStore } from "../stores/form"
 import { Check, GripVertical, PenIcon, Trash2 } from "lucide-react"
 import type { UseFormReturn } from "react-hook-form"
 import { useShallow } from "zustand/shallow"
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { FormField } from "@/components/ui/form"
-import { renderFormFieldComponent } from "@/components/render-form-field-component"
-import { TooltipWrapper } from "@/components/tooltip-wrapper"
+import { cn } from "../lib/utils"
+import { Button } from "./ui/button"
+import { FormField } from "./ui/form"
+import { renderFormFieldComponent } from "./render-form-field-component"
+import { TooltipWrapper } from "./tooltip-wrapper"
 
-import type { FormField as FormFieldType } from "@/types/field"
-import { FormState } from "@/types/form-store"
+import type { FormField as FormFieldType } from "../types/field"
+import { FormState } from "../types/form-store"
 
 export interface FieldProps {
   formField: FormFieldType

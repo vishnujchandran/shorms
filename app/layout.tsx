@@ -1,13 +1,13 @@
 import type { Metadata, Viewport } from "next"
 import { ThemeProvider } from "next-themes"
 
-import { fontMono, fontSans } from "@/lib/fonts"
-import { cn } from "@/lib/utils"
+import { fontMono, fontSans } from "../lib/fonts"
+import { cn } from "../lib/utils"
 
 import "./globals.css"
 
-import { Toaster } from "@/components/ui/toaster"
-import { TooltipProvider } from "@/components/ui/tooltip"
+import { Toaster } from "../components/ui/toaster"
+import { TooltipProvider } from "../components/ui/tooltip"
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://forms.ouassim.tech"),

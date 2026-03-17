@@ -4,7 +4,7 @@
  */
 
 import React from 'react'
-import type { FormField } from '@/types/field'
+import type { FormField } from '../../../types/field'
 import type { ViewMode } from './types'
 import {
   formatFieldValue,

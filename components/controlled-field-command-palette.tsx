@@ -3,7 +3,7 @@
 import * as React from "react"
 import { SearchCode } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
+import { Button } from "./ui/button"
 import {
   Command,
   CommandEmpty,
@@ -11,16 +11,16 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command"
+} from "./ui/command"
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "./ui/dialog"
 
-import type { FormField } from "@/types/field"
+import type { FormField } from "../types/field"
 
 interface ControlledFieldCommandPaletteProps {
   fields: Array<{

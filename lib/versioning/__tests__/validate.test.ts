@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { validateSchema, isSupportedFieldType, getUnsupportedFields } from '../validate'
-import type { ShormsSchema } from '@/types/schema'
+import type { ShormsSchema } from '../../../types/schema'
 
 describe('validateSchema', () => {
   it('should validate a correct schema', () => {

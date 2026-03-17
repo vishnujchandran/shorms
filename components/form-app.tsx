@@ -4,9 +4,9 @@ import * as React from 'react'
 import { Book, ChevronDown, Download, Github, History, Hammer, Play, Eye, Trash2, Upload } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { VERSION } from '@/lib/version'
-import { useToast } from '@/hooks/use-toast'
-import { Button } from '@/components/ui/button'
+import { VERSION } from '../lib/version'
+import { useToast } from '../hooks/use-toast'
+import { Button } from './ui/button'
 import {
   Dialog,
   DialogContent,
@@ -14,29 +14,29 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from './ui/dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Input } from '@/components/ui/input'
-import { Separator } from '@/components/ui/separator'
-import { Logo } from '@/components/logo'
-import { ModeToggle } from '@/components/mode-toggle'
-import { Builder } from '@/components/shorms/builder/builder'
-import { useBuilderState } from '@/components/shorms/builder/use-builder-state'
-import { defaultFieldTemplates } from '@/components/shorms/builder/constants'
-import { ShadcnRenderer } from '@/components/shorms/shadcn-renderer'
-import { ShadcnViewer } from '@/components/shorms/shadcn-viewer'
-import { ControlledFieldCommandPalette } from '@/components/controlled-field-command-palette'
-import { EditFormField } from '@/components/edit-form-field'
-import { formPagesToSchema } from '@/lib/schema-adapter'
-import { generateFieldId, generateFieldName } from '@/lib/utils'
-import type { FormPage } from '@/components/shorms/builder/types'
-import type { FormField } from '@/types/field'
+} from './ui/dropdown-menu'
+import { Input } from './ui/input'
+import { Separator } from './ui/separator'
+import { Logo } from './logo'
+import { ModeToggle } from './mode-toggle'
+import { Builder } from './shorms/builder/builder'
+import { useBuilderState } from './shorms/builder/use-builder-state'
+import { defaultFieldTemplates } from './shorms/builder/constants'
+import { ShadcnRenderer } from './shorms/shadcn-renderer'
+import { ShadcnViewer } from './shorms/shadcn-viewer'
+import { ControlledFieldCommandPalette } from './controlled-field-command-palette'
+import { EditFormField } from './edit-form-field'
+import { formPagesToSchema } from '../lib/schema-adapter'
+import { generateFieldId, generateFieldName } from '../lib/utils'
+import type { FormPage } from './shorms/builder/types'
+import type { FormField } from '../types/field'
 
 export type WidthSize = 'sm' | 'md' | 'lg' | 'xl' | 'full'
 export type AppMode = 'builder' | 'renderer' | 'viewer'

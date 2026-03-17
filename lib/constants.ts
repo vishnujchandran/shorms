@@ -12,7 +12,7 @@ import {
   UploadIcon,
 } from "lucide-react"
 
-import { FieldType, type FormField } from "@/types/field"
+import { FieldType, type FormField } from "../types/field"
 
 export const fields: FormField[] = [
   {

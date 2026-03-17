@@ -20,9 +20,9 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { FilePlus, GripVertical, Trash2 } from 'lucide-react'
 
-import { Button } from '@/components/ui/button'
-import { FieldCommandPalette } from '@/components/field-command-palette'
-import { cn } from '@/lib/utils'
+import { Button } from '../../ui/button'
+import { FieldCommandPalette } from '../../field-command-palette'
+import { cn } from '../../../lib/utils'
 
 import type { FormPage, PageTabsProps } from './types'
 

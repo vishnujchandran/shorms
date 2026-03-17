@@ -151,6 +151,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added missing `name` attributes to form inputs for proper form handling
 - Textarea fields now render correctly instead of as text inputs
 - Field type attributes properly mapped (email, number types)
+- ShadcnRenderer now normalizes schema field types (e.g., `radio_group`, `combobox`) so radio groups and comboboxes render with the correct shadcn components instead of falling back to text inputs
 
 ## [0.2.0] - 2025-12-15
 

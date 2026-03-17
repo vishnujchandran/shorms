@@ -6,18 +6,18 @@ import remarkGfm from 'remark-gfm'
 import { codeToHtml } from 'shiki'
 import { Book, Check, ChevronDown, Copy, Github, History } from 'lucide-react'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import { Button } from './ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Logo } from '@/components/logo'
-import { ModeToggle } from '@/components/mode-toggle'
-import { VERSION } from '@/lib/version'
-import { cn } from '@/lib/utils'
+} from './ui/dropdown-menu'
+import { Logo } from './logo'
+import { ModeToggle } from './mode-toggle'
+import { VERSION } from '../lib/version'
+import { cn } from '../lib/utils'
 
 function CodeBlock({ className, children }: { className?: string; children?: React.ReactNode }) {
   const [html, setHtml] = React.useState<string | null>(null)

@@ -7,7 +7,7 @@
 
 'use client'
 
-import { Builder, useBuilderState, type FormPage } from '@/index'
+import { Builder, useBuilderState, type FormPage } from '../..'
 import { useEffect, useState } from 'react'
 
 // Mock API endpoints (replace with your actual API)

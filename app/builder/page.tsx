@@ -1,7 +1,7 @@
 'use client'
 
 import { Suspense } from 'react'
-import { FormApp } from '@/components/form-app'
+import { FormApp } from '../../components/form-app'
 
 function BuilderContent() {
   return <FormApp mode="builder" />

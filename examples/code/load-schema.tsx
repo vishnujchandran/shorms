@@ -7,7 +7,7 @@
 
 'use client'
 
-import { Builder, useBuilderState, type FormPage } from '@/index'
+import { Builder, useBuilderState, type FormPage } from '../..'
 import { useState } from 'react'
 
 // Example: Import a contact form schema

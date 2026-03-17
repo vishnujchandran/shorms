@@ -7,7 +7,7 @@
 
 'use client'
 
-import { Renderer, type FormPage } from '@/index'
+import { Renderer, type FormPage } from '../..'
 import { useState } from 'react'
 
 // Example: Import a feedback survey schema

@@ -1,63 +1,111 @@
-'use client'
+"use client"
 
 /**
  * Shadcn-styled Renderer Wrapper
  * Uses the core Renderer with shadcn/ui components for styling
  */
+import * as React from "react"
+import { format } from "date-fns"
+import {
+  CalendarIcon,
+  CheckIcon,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsUpDownIcon,
+} from "lucide-react"
 
-import * as React from 'react'
-import { Renderer } from './renderer'
-import type { RendererProps, FormField as ShormsFormField, FormPage, NavigationProps } from './renderer/types'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Checkbox } from '@/components/ui/checkbox'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { cn } from "../../lib/utils"
+import { Button } from "../ui/button"
+import { Calendar } from "../ui/calendar"
+import { Checkbox } from "../ui/checkbox"
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "../ui/command"
+import { Input } from "../ui/input"
+import { Label } from "../ui/label"
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
+import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
-import { Slider } from '@/components/ui/slider'
-import { Calendar } from '@/components/ui/calendar'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { cn } from '@/lib/utils'
-import { CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react'
-import { format } from 'date-fns'
+} from "../ui/select"
+import { Slider } from "../ui/slider"
+import { Switch } from "../ui/switch"
+import { Textarea } from "../ui/textarea"
+import { Renderer } from "./renderer"
+import type {
+  FormPage,
+  NavigationProps,
+  RendererProps,
+  FormField as ShormsFormField,
+} from "./renderer/types"
 
-interface ShadcnRendererProps extends Omit<RendererProps, 'renderField' | 'renderPage' | 'renderProgress'> {
+const normalizeFieldType = (type?: string): string => {
+  if (!type) return "text"
+  const lower = type.toLowerCase()
+  switch (lower) {
+    case "input":
+      return "text"
+    case "number_input":
+      return "number"
+    case "radio_group":
+      return "radio"
+    case "file_upload":
+      return "file"
+    default:
+      return lower
+  }
+}
+
+interface ShadcnRendererProps
+  extends Omit<RendererProps, "renderField" | "renderPage" | "renderProgress"> {
   className?: string
   title?: string
   description?: string
 }
 
-export function ShadcnRenderer({ className, title, description, ...props }: ShadcnRendererProps) {
-  // State to hold navigation props from Renderer
-  const [navProps, setNavProps] = React.useState<NavigationProps | null>(null)
+export function ShadcnRenderer({
+  className,
+  title,
+  description,
+  ...props
+}: ShadcnRendererProps) {
+  // State to track current page index and total pages
+  const [currentPageIndex, setCurrentPageIndex] = React.useState(0)
+  const [totalPages, setTotalPages] = React.useState(props.schema?.pages?.length ?? 1)
+  const [, forceUpdate] = React.useReducer(x => x + 1, 0)
+
   const rendererRef = React.useRef<any>(null)
   const pendingNavProps = React.useRef<NavigationProps | null>(null)
 
   // Custom field renderer using shadcn components
-  const renderField = React.useCallback((field: ShormsFormField, value: any, onChange: (value: any) => void) => {
-    return (
-      <div key={field.id} className="space-y-2">
-        <Label htmlFor={field.name}>
-          {field.label}
-          {field.required && <span className="text-destructive ml-1">*</span>}
-        </Label>
+  const renderField = React.useCallback(
+    (field: ShormsFormField, value: any, onChange: (value: any) => void) => {
+      return (
+        <div key={field.id} className="space-y-2">
+          <Label htmlFor={field.name}>
+            {field.label}
+            {field.required && <span className="ml-1 text-destructive">*</span>}
+          </Label>
 
-        {field.description && (
-          <p className="text-sm text-muted-foreground">{field.description}</p>
-        )}
+          {field.description && (
+            <p className="text-sm text-muted-foreground">{field.description}</p>
+          )}
 
-        {renderFieldInput(field, value, onChange)}
-      </div>
-    )
-  }, [])
+          {renderFieldInput(field, value, onChange)}
+        </div>
+      )
+    },
+    []
+  )
 
   // Render different input types with shadcn components
   const renderFieldInput = (
@@ -66,32 +114,38 @@ export function ShadcnRenderer({ className, title, description, ...props }: Shad
     onChange: (value: any) => void
   ) => {
     // Extract common properties from config if available
-    const placeholder = (field.config?.placeholder || field.config?.placeholderText) as string | undefined
-    const options = (field.config?.options || []) as Array<{ label: string; value: string }>
+    const placeholder = (field.config?.placeholder ||
+      field.config?.placeholderText) as string | undefined
+    const options = (field.config?.options || []) as Array<{
+      label: string
+      value: string
+    }>
 
-    switch (field.type) {
-      case 'text':
-      case 'email':
-      case 'url':
+    const normalizedType = normalizeFieldType(field.type)
+
+    switch (normalizedType) {
+      case "text":
+      case "email":
+      case "url":
         return (
           <Input
             id={field.name}
             name={field.name}
             type={field.type}
-            value={value || ''}
+            value={value || ""}
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder}
             required={field.required}
           />
         )
 
-      case 'number':
+      case "number":
         return (
           <Input
             id={field.name}
             name={field.name}
             type="number"
-            value={value || ''}
+            value={value || ""}
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder}
             required={field.required}
@@ -100,12 +154,12 @@ export function ShadcnRenderer({ className, title, description, ...props }: Shad
           />
         )
 
-      case 'textarea':
+      case "textarea":
         return (
           <Textarea
             id={field.name}
             name={field.name}
-            value={value || ''}
+            value={value || ""}
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder}
             required={field.required}
@@ -113,11 +167,11 @@ export function ShadcnRenderer({ className, title, description, ...props }: Shad
           />
         )
 
-      case 'select':
+      case "select":
         return (
-          <Select value={value || ''} onValueChange={onChange}>
+          <Select value={value || ""} onValueChange={onChange}>
             <SelectTrigger id={field.name}>
-              <SelectValue placeholder={placeholder || 'Select an option'} />
+              <SelectValue placeholder={placeholder || "Select an option"} />
             </SelectTrigger>
             <SelectContent>
               {options?.map((option) => (
@@ -129,13 +183,65 @@ export function ShadcnRenderer({ className, title, description, ...props }: Shad
           </Select>
         )
 
-      case 'radio':
+      case "combobox": {
+        const selected = options?.find((option) => option.value === value)
         return (
-          <RadioGroup value={value || ''} onValueChange={onChange}>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                className={cn(
+                  "w-full justify-between",
+                  !selected && "text-muted-foreground"
+                )}
+              >
+                {selected ? selected.label : placeholder || "Select an option"}
+                <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="p-0">
+              <Command>
+                <CommandInput placeholder={placeholder || "Search..."} />
+                <CommandEmpty>No option found.</CommandEmpty>
+                <CommandList>
+                  <CommandGroup>
+                    {options?.map((option) => (
+                      <CommandItem
+                        key={option.value}
+                        value={option.value}
+                        onSelect={() => onChange(option.value)}
+                      >
+                        <CheckIcon
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            option.value === value ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        {option.label}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+        )
+      }
+
+      case "radio":
+        return (
+          <RadioGroup value={value || ""} onValueChange={onChange}>
             {options?.map((option) => (
               <div key={option.value} className="flex items-center space-x-2">
-                <RadioGroupItem value={option.value} id={`${field.name}-${option.value}`} />
-                <Label htmlFor={`${field.name}-${option.value}`} className="font-normal">
+                <RadioGroupItem
+                  value={option.value}
+                  id={`${field.name}-${option.value}`}
+                />
+                <Label
+                  htmlFor={`${field.name}-${option.value}`}
+                  className="font-normal"
+                >
                   {option.label}
                 </Label>
               </div>
@@ -143,7 +249,7 @@ export function ShadcnRenderer({ className, title, description, ...props }: Shad
           </RadioGroup>
         )
 
-      case 'checkbox':
+      case "checkbox":
         return (
           <div className="flex items-center space-x-2">
             <Checkbox
@@ -152,12 +258,12 @@ export function ShadcnRenderer({ className, title, description, ...props }: Shad
               onCheckedChange={onChange}
             />
             <Label htmlFor={field.name} className="font-normal">
-              {placeholder || 'Check this box'}
+              {placeholder || "Check this box"}
             </Label>
           </div>
         )
 
-      case 'switch':
+      case "switch":
         return (
           <div className="flex items-center space-x-2">
             <Switch
@@ -166,12 +272,12 @@ export function ShadcnRenderer({ className, title, description, ...props }: Shad
               onCheckedChange={onChange}
             />
             <Label htmlFor={field.name} className="font-normal">
-              {placeholder || 'Toggle'}
+              {placeholder || "Toggle"}
             </Label>
           </div>
         )
 
-      case 'slider':
+      case "slider":
         return (
           <div className="space-y-2">
             <Slider
@@ -182,25 +288,29 @@ export function ShadcnRenderer({ className, title, description, ...props }: Shad
               max={field.validation?.max || 100}
               step={1}
             />
-            <div className="text-sm text-muted-foreground text-center">
+            <div className="text-center text-sm text-muted-foreground">
               {value || field.validation?.min || 0}
             </div>
           </div>
         )
 
-      case 'date':
+      case "date":
         return (
           <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
                 className={cn(
-                  'w-full justify-start text-left font-normal',
-                  !value && 'text-muted-foreground'
+                  "w-full justify-start text-left font-normal",
+                  !value && "text-muted-foreground"
                 )}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {value ? format(new Date(value), 'PPP') : <span>Pick a date</span>}
+                {value ? (
+                  format(new Date(value), "PPP")
+                ) : (
+                  <span>Pick a date</span>
+                )}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0">
@@ -214,7 +324,7 @@ export function ShadcnRenderer({ className, title, description, ...props }: Shad
           </Popover>
         )
 
-      case 'file':
+      case "file":
         return (
           <Input
             id={field.name}
@@ -229,12 +339,20 @@ export function ShadcnRenderer({ className, title, description, ...props }: Shad
         )
 
       default:
+        if (process.env.NODE_ENV !== "production") {
+          console.warn(
+            "[ShadcnRenderer] Unhandled field type encountered, defaulting to text input:",
+            field.type,
+            `(normalized as ${normalizedType})`,
+            field
+          )
+        }
         return (
           <Input
             id={field.name}
             name={field.name}
             type="text"
-            value={value || ''}
+            value={value || ""}
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder}
             required={field.required}
@@ -244,67 +362,78 @@ export function ShadcnRenderer({ className, title, description, ...props }: Shad
   }
 
   // Custom page renderer
-  const renderPage = React.useCallback((page: FormPage, children: React.ReactNode) => {
-    if (!page) {
-      return <div className="space-y-4">{children}</div>
-    }
-    return (
-      <div className="space-y-6">
-        {page.title && (
-          <div className="space-y-1">
-            <h2 className="text-2xl font-semibold tracking-tight">{page.title}</h2>
-            {page.description && (
-              <p className="text-sm text-muted-foreground">{page.description}</p>
-            )}
-          </div>
-        )}
-        <div className="space-y-4">
-          {children}
+  const renderPage = React.useCallback(
+    (page: FormPage, children: React.ReactNode) => {
+      if (!page) {
+        return <div className="space-y-4">{children}</div>
+      }
+      return (
+        <div className="space-y-6">
+          {page.title && (
+            <div className="space-y-1">
+              <h2 className="text-2xl font-semibold tracking-tight">
+                {page.title}
+              </h2>
+              {page.description && (
+                <p className="text-sm text-muted-foreground">
+                  {page.description}
+                </p>
+              )}
+            </div>
+          )}
+          <div className="space-y-4">{children}</div>
         </div>
-      </div>
-    )
-  }, [])
+      )
+    },
+    []
+  )
 
   // Progress is now in the toolbar, return null here
   const renderProgress = React.useCallback(() => null, [])
 
   // Capture navigation props from Renderer, render nothing inside
   const renderNavigation = React.useCallback((props: NavigationProps) => {
-    // Store in ref during render, will be synced to state via useLayoutEffect
-    pendingNavProps.current = props
+    pendingNavProps.current = { ...props }
+    setCurrentPageIndex(props.currentPageIndex)
+    setTotalPages(props.totalPages)
+    forceUpdate()
     return null // Don't render anything inside Renderer
   }, [])
-
-  // Sync navigation props from ref to state after render (only when changed)
-  React.useLayoutEffect(() => {
-    const pending = pendingNavProps.current
-    if (pending && (
-      !navProps ||
-      pending.currentPageIndex !== navProps.currentPageIndex ||
-      pending.totalPages !== navProps.totalPages ||
-      pending.isLastPage !== navProps.isLastPage
-    )) {
-      setNavProps(pending)
-    }
-  })
 
   // Handle submit from external toolbar
   const handleToolbarSubmit = React.useCallback(() => {
     rendererRef.current?.submit()
   }, [])
 
-  // Calculate progress for toolbar
-  const progress = navProps
-    ? (navProps.currentPageIndex / Math.max(navProps.totalPages - 1, 1)) * 100
-    : 0
+  // Derive navigation state from state (not from props to avoid timing issues)
+  const toolbarNavProps = pendingNavProps.current
+  const derivedTotalPages = totalPages
+  const derivedCurrentIndex = currentPageIndex
+  const derivedIsFirst = derivedCurrentIndex === 0
+  const derivedIsLast = derivedCurrentIndex >= derivedTotalPages - 1
+
+  // Previous button: show only on multi-page forms, not on first page
+  const showPrevious = derivedTotalPages > 1 && !derivedIsFirst
+  const derivedCanPrevious = derivedTotalPages > 1 && !derivedIsFirst
+
+  // Next button: show only on multi-page forms, not on last page
+  const showNext = derivedTotalPages > 1 && !derivedIsLast
+  const derivedCanNext = derivedTotalPages > 1 && !derivedIsLast
+
+  // Calculate progress for toolbar (show 0–100% even for single-page forms)
+  const progress = ((derivedCurrentIndex + 1) / Math.max(derivedTotalPages, 1)) * 100
 
   return (
-    <div className={cn('w-full h-full flex flex-col', className)}>
+    <div className={cn("flex h-full w-full flex-col", className)}>
       {/* Navbar - fixed at top, edge to edge */}
       {(title || description) && (
-        <div className="shrink-0 px-6 py-4 border-b bg-background">
-          {title && <h2 className="text-lg font-semibold tracking-tight">{title}</h2>}
-          {description && <p className="text-sm text-muted-foreground">{description}</p>}
+        <div className="shrink-0 border-b bg-background px-6 py-4">
+          {title && (
+            <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
+          )}
+          {description && (
+            <p className="text-sm text-muted-foreground">{description}</p>
+          )}
         </div>
       )}
 
@@ -321,38 +450,52 @@ export function ShadcnRenderer({ className, title, description, ...props }: Shad
       </div>
 
       {/* Fixed toolbar at bottom */}
-      {navProps && (
-        <div className="shrink-0 px-6 py-4 border-t bg-background">
+      {derivedTotalPages > 0 && (
+        <div className="shrink-0 border-t bg-background px-6 py-4">
           <div className="flex items-center gap-4">
-            {/* Left: Previous button */}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={navProps.onPrevious}
-              disabled={!navProps.canGoPrevious}
-              className={`w-32 ${!navProps.canGoPrevious ? 'invisible' : ''}`}
-            >
-              <ChevronLeft className="mr-2 h-4 w-4" />
-              Previous
-            </Button>
+            {/* Left: Previous button - only show on multi-page forms, not first page */}
+            {showPrevious && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={toolbarNavProps?.onPrevious}
+                disabled={!derivedCanPrevious || !toolbarNavProps}
+                className="w-32"
+              >
+                <ChevronLeft className="mr-2 h-4 w-4" />
+                Previous
+              </Button>
+            )}
 
             {/* Center: Progress bar */}
-            <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
+            <div className="h-2 flex-1 overflow-hidden rounded-full bg-secondary">
               <div
                 className="h-full bg-primary transition-all duration-300"
                 style={{ width: `${progress}%` }}
               />
             </div>
 
-            {/* Right: Next/Submit button */}
-            {navProps.isLastPage ? (
-              <Button type="button" onClick={handleToolbarSubmit} className="w-32">
-                Submit
+            {/* Right: Next button - only show on multi-page forms, not on last page */}
+            {showNext && (
+              <Button
+                type="button"
+                onClick={toolbarNavProps?.onNext}
+                disabled={!derivedCanNext || !toolbarNavProps}
+                className="w-32"
+              >
+                Next
                 <ChevronRight className="ml-2 h-4 w-4" />
               </Button>
-            ) : (
-              <Button type="button" onClick={navProps.onNext} className="w-32">
-                Next
+            )}
+
+            {/* Right: Submit button - show on last page or single-page forms */}
+            {!showNext && derivedTotalPages > 0 && (
+              <Button
+                type="button"
+                onClick={handleToolbarSubmit}
+                className="w-32"
+              >
+                Submit
                 <ChevronRight className="ml-2 h-4 w-4" />
               </Button>
             )}

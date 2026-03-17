@@ -3,14 +3,21 @@
  * Renders forms with validation, suggestions, and state management
  */
 
-'use client'
+"use client"
 
-import React, { useEffect, useImperativeHandle, useState, useCallback, useRef } from 'react'
-import type { RendererProps, FormField, FormPage, NavigationProps } from './types'
-import { useFormState } from './use-form-state'
-import { useValidation } from './use-validation'
-import { useSuggestions } from './use-suggestions'
-import { useBackgroundJob } from './use-background-job'
+import React, {
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react"
+
+import type { FormField, FormPage, RendererProps } from "./types"
+import { useBackgroundJob } from "./use-background-job"
+import { useFormState } from "./use-form-state"
+import { useSuggestions } from "./use-suggestions"
+import { useValidation } from "./use-validation"
 
 export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
   const {
@@ -27,8 +34,10 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
     initialValues,
     initialJobId,
     onDirtyStateChange,
-    onUndo,
-    onRedo,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onUndo: _onUndo,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onRedo: _onRedo,
     renderField,
     renderPage,
     renderProgress,
@@ -36,15 +45,36 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
   } = props
 
   // Extract feature flags
-  const {
-    stateManagement = true,
-    autoSave,
-    backgroundJobs,
-  } = features
+  const { autoSave, backgroundJobs } = features
 
   // State: Current page
   const [currentPageIndex, setCurrentPageIndex] = useState(0)
-  const currentPage = schema.pages[currentPageIndex]
+
+  // Keep the current page index within the valid range even if the schema changes
+  useEffect(() => {
+    const lastValidIndex = Math.max(schema.pages.length - 1, 0)
+    if (schema.pages.length === 0) {
+      if (currentPageIndex !== 0) {
+        setCurrentPageIndex(0)
+      }
+      return
+    }
+
+    if (currentPageIndex > lastValidIndex) {
+      setCurrentPageIndex(lastValidIndex)
+    }
+  }, [schema.pages.length, currentPageIndex])
+
+  const totalPages = schema.pages.length
+  const hasPages = totalPages > 0
+  const currentPage = hasPages ? schema.pages[currentPageIndex] : undefined
+  const isFirstPage = currentPageIndex === 0
+  const isLastPage = !hasPages || currentPageIndex === totalPages - 1
+
+  // Navigation visibility rules (handles single-page + multi-page)
+  const showPrevious = totalPages > 1 && !isFirstPage
+  const showNext = totalPages > 1 && !isLastPage
+  const showSubmit = totalPages === 1 || isLastPage
 
   // Ref to prevent submission immediately after navigation
   const justNavigatedRef = useRef(false)
@@ -92,18 +122,21 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
       return
     }
 
-    const interval = setInterval(() => {
-      if (formState.isDirty) {
-        const changes = formState.getChanges()
-        onSaveDraft(formState.values, changes)
-          .then(() => {
-            formState.markClean()
-          })
-          .catch(error => {
-            console.error('Auto-save failed:', error)
-          })
-      }
-    }, (autoSave.interval || 30) * 1000)
+    const interval = setInterval(
+      () => {
+        if (formState.isDirty) {
+          const changes = formState.getChanges()
+          onSaveDraft(formState.values, changes)
+            .then(() => {
+              formState.markClean()
+            })
+            .catch((error) => {
+              console.error("Auto-save failed:", error)
+            })
+        }
+      },
+      (autoSave.interval || 30) * 1000
+    )
 
     return () => clearInterval(interval)
   }, [autoSave, onSaveDraft, formState])
@@ -125,244 +158,297 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
   }, [suggestions])
 
   // Handler: Field value change
-  const handleFieldChange = useCallback(async (fieldId: string, value: any, fieldType?: string) => {
-    // Convert value based on field type
-    let convertedValue = value
-    if (fieldType === 'number' && value !== '' && value !== null) {
-      convertedValue = Number(value)
-    }
+  const handleFieldChange = useCallback(
+    async (fieldId: string, value: any, fieldType?: string) => {
+      // Convert value based on field type
+      let convertedValue = value
+      if (fieldType === "number" && value !== "" && value !== null) {
+        convertedValue = Number(value)
+      }
 
-    // Update value in state
-    formState.setValue(fieldId, convertedValue, 'user')
+      // Update value in state
+      formState.setValue(fieldId, convertedValue, "user")
 
-    // Run validation
-    const validationResult = await validation.validateFieldDebounced(fieldId)
-    // TODO: Update validation state in formState
+      // Run validation
+      await validation.validateFieldDebounced(fieldId)
+      // TODO: Update validation state in formState
 
-    // Trigger suggestion if configured
-    await suggestions.handleFieldChange(fieldId, value)
+      // Trigger suggestion if configured
+      await suggestions.handleFieldChange(fieldId, value)
 
-    // Trigger dependent field validations
-    await validation.validateDependentFields(fieldId)
+      // Trigger dependent field validations
+      await validation.validateDependentFields(fieldId)
 
-    // Trigger dependent field suggestions
-    await suggestions.triggerDependentSuggestions(fieldId)
-  }, [formState, validation, suggestions])
+      // Trigger dependent field suggestions
+      await suggestions.triggerDependentSuggestions(fieldId)
+    },
+    [formState, validation, suggestions]
+  )
 
   // Handler: Page navigation
   const handleNextPage = useCallback(async () => {
+    // Disallow navigation when already on the last page or when there is nowhere to go
+    if (!hasPages || isLastPage) {
+      return
+    }
+
     // Validate current page
-    const pageValidation = await validation.validatePage(currentPage.id)
+    const pageValidation = await validation.validatePage(currentPage!.id)
 
     // Check for blocking errors
     let hasBlockingErrors = false
-    pageValidation.forEach(result => {
+    pageValidation.forEach((result) => {
       if (!result.valid && result.blocking) {
         hasBlockingErrors = true
       }
     })
 
-    if (hasBlockingErrors) {
+    if (hasBlockingErrors || !currentPage) {
       return
     }
 
     // Navigate to next page
-    if (currentPageIndex < schema.pages.length - 1) {
+    if (currentPageIndex < totalPages - 1) {
       // Set flag to prevent immediate submission when landing on last page
       justNavigatedRef.current = true
-      setCurrentPageIndex(prev => prev + 1)
+      setCurrentPageIndex((prev) => prev + 1)
       window.scrollTo(0, 0)
       // Clear the flag after a short delay
       setTimeout(() => {
         justNavigatedRef.current = false
       }, 100)
     }
-  }, [currentPageIndex, schema.pages.length, currentPage, validation])
+  }, [
+    currentPageIndex,
+    totalPages,
+    currentPage,
+    validation,
+    hasPages,
+    isLastPage,
+  ])
 
   const handlePrevPage = useCallback(() => {
+    if (!hasPages || isFirstPage) {
+      return
+    }
+
     if (currentPageIndex > 0) {
-      setCurrentPageIndex(prev => prev - 1)
+      setCurrentPageIndex((prev) => prev - 1)
       window.scrollTo(0, 0)
     }
-  }, [currentPageIndex])
+  }, [currentPageIndex, hasPages, isFirstPage])
 
   // Handler: Form submission
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault()
 
-    // Prevent submission if we just navigated to this page
-    if (justNavigatedRef.current) {
-      return
-    }
-
-    // Only allow submission on the last page
-    if (currentPageIndex < schema.pages.length - 1) {
-      // Don't submit, don't navigate - user must use Next button
-      return
-    }
-
-    // Validate all fields
-    const allValidation = await validation.validateAll()
-
-    // Check for blocking errors
-    let hasBlockingErrors = false
-    allValidation.forEach(result => {
-      if (!result.valid && result.blocking) {
-        hasBlockingErrors = true
+      // Prevent submission if we just navigated to this page
+      if (justNavigatedRef.current) {
+        return
       }
-    })
 
-    if (hasBlockingErrors) {
-      console.warn('Form has validation errors')
-      return
-    }
+      // Only allow submission on the last page (or single-page forms)
+      if (!isLastPage) {
+        return
+      }
 
-    // Run cross-field validation
-    const crossFieldValidation = await validation.validateCrossField()
-    if (crossFieldValidation.size > 0) {
-      let hasCrossFieldErrors = false
-      crossFieldValidation.forEach(result => {
+      // Validate all fields
+      const allValidation = await validation.validateAll()
+
+      // Check for blocking errors
+      let hasBlockingErrors = false
+      allValidation.forEach((result) => {
         if (!result.valid && result.blocking) {
-          hasCrossFieldErrors = true
+          hasBlockingErrors = true
         }
       })
 
-      if (hasCrossFieldErrors) {
-        console.warn('Form has cross-field validation errors')
+      if (hasBlockingErrors) {
+        console.warn("Form has validation errors")
         return
       }
-    }
 
-    // Submit form
-    try {
-      await onSubmit(formState.values)
+      // Run cross-field validation
+      const crossFieldValidation = await validation.validateCrossField()
+      if (crossFieldValidation.size > 0) {
+        let hasCrossFieldErrors = false
+        crossFieldValidation.forEach((result) => {
+          if (!result.valid && result.blocking) {
+            hasCrossFieldErrors = true
+          }
+        })
 
-      // Mark as submitted
-      // formState.metadata.submittedAt = Date.now()
-    } catch (error) {
-      console.error('Form submission error:', error)
-    }
-  }, [formState, validation, onSubmit, currentPageIndex, schema.pages.length])
+        if (hasCrossFieldErrors) {
+          console.warn("Form has cross-field validation errors")
+          return
+        }
+      }
+
+      // Submit form
+      try {
+        // Aggregate form values per page
+        const aggregatedValues: Record<string, Record<string, any>> = {}
+
+        schema.pages.forEach((page, index) => {
+          const pageKey = `page${index + 1}`
+          aggregatedValues[pageKey] = {}
+
+          page.fields.forEach((field) => {
+            aggregatedValues[pageKey][field.name] = formState.values[field.name]
+          })
+        })
+
+        await onSubmit(aggregatedValues)
+
+        // Mark as submitted
+        // formState.metadata.submittedAt = Date.now()
+      } catch (error) {
+        console.error("Form submission error:", error)
+      }
+    },
+    [
+      formState,
+      validation,
+      onSubmit,
+      currentPageIndex,
+      totalPages,
+      schema.pages,
+    ]
+  )
 
   // Expose form state, navigation, and submit API via ref
-  useImperativeHandle(formStateRef || ref, () => ({
-    ...formState,
-    navigation: {
+  useImperativeHandle(
+    formStateRef || ref,
+    () => ({
+      ...formState,
+      navigation: {
+        currentPageIndex,
+        totalPages,
+        onPrevious: handlePrevPage,
+        onNext: handleNextPage,
+        canGoPrevious: showPrevious,
+        canGoNext: showNext,
+        isLastPage,
+      },
+      submit: () => {
+        formElementRef.current?.requestSubmit()
+      },
+    }),
+    [
+      formState,
       currentPageIndex,
-      totalPages: schema.pages.length,
-      onPrevious: handlePrevPage,
-      onNext: handleNextPage,
-      canGoPrevious: currentPageIndex > 0,
-      canGoNext: currentPageIndex < schema.pages.length - 1,
-      isLastPage: currentPageIndex === schema.pages.length - 1,
-    },
-    submit: () => {
-      formElementRef.current?.requestSubmit()
-    },
-  }), [formState, currentPageIndex, schema.pages.length, handlePrevPage, handleNextPage])
+      totalPages,
+      handlePrevPage,
+      handleNextPage,
+      showPrevious,
+      showNext,
+      isLastPage,
+    ]
+  )
 
   // Handler: Bulk file upload
-  const handleBulkFileUpload = useCallback(async (files: File[]) => {
-    if (!onBulkSuggest) {
-      return
-    }
-
-    const jobId = await backgroundJob.startBulkSuggest(files)
-    if (jobId) {
-      console.log('Started bulk suggestion job:', jobId)
-    }
-  }, [onBulkSuggest, backgroundJob])
-
   // Render field (default implementation)
-  const renderFieldDefault = useCallback((field: FormField, value: any) => {
-    return (
-      <div key={field.id} className="space-y-2">
-        <label htmlFor={field.name} className="block text-sm font-medium">
-          {field.label}
-          {field.required && <span className="text-red-500 ml-1">*</span>}
-        </label>
+  const renderFieldDefault = useCallback(
+    (field: FormField, value: any) => {
+      return (
+        <div key={field.id} className="space-y-2">
+          <label htmlFor={field.name} className="block text-sm font-medium">
+            {field.label}
+            {field.required && <span className="ml-1 text-red-500">*</span>}
+          </label>
 
-        {field.description && (
-          <p className="text-sm text-muted-foreground">{field.description}</p>
-        )}
+          {field.description && (
+            <p className="text-sm text-muted-foreground">{field.description}</p>
+          )}
 
-        {field.type === 'textarea' ? (
-          <textarea
-            id={field.name}
-            name={field.name}
-            value={value || ''}
-            onChange={(e) => handleFieldChange(field.name, e.target.value, field.type)}
-            className="w-full px-3 py-2 border rounded-md"
-            required={field.required}
-            rows={4}
-          />
-        ) : (
-          <input
-            id={field.name}
-            name={field.name}
-            type={field.type === 'email' ? 'email' : field.type === 'number' ? 'number' : 'text'}
-            value={value || ''}
-            onChange={(e) => handleFieldChange(field.name, e.target.value, field.type)}
-            className="w-full px-3 py-2 border rounded-md"
-            required={field.required}
-          />
-        )}
+          {field.type === "textarea" ? (
+            <textarea
+              id={field.name}
+              name={field.name}
+              value={value || ""}
+              onChange={(e) =>
+                handleFieldChange(field.name, e.target.value, field.type)
+              }
+              className="w-full rounded-md border px-3 py-2"
+              required={field.required}
+              rows={4}
+            />
+          ) : (
+            <input
+              id={field.name}
+              name={field.name}
+              type={
+                field.type === "email"
+                  ? "email"
+                  : field.type === "number"
+                    ? "number"
+                    : "text"
+              }
+              value={value || ""}
+              onChange={(e) =>
+                handleFieldChange(field.name, e.target.value, field.type)
+              }
+              className="w-full rounded-md border px-3 py-2"
+              required={field.required}
+            />
+          )}
 
-        {/* Validation error */}
-        {formState.errors[field.name] && (
-          <p className="text-sm text-red-500">{formState.errors[field.name]}</p>
-        )}
+          {/* Validation error */}
+          {formState.errors[field.name] && (
+            <p className="text-sm text-red-500">
+              {formState.errors[field.name]}
+            </p>
+          )}
 
-        {/* Suggestion indicator */}
-        {formState.getSuggestionState(field.name)?.status === 'available' && (
-          <div className="text-sm text-blue-500">
-            💡 Suggestion available
-          </div>
-        )}
-      </div>
-    )
-  }, [formState, handleFieldChange])
+          {/* Suggestion indicator */}
+          {formState.getSuggestionState(field.name)?.status === "available" && (
+            <div className="text-sm text-blue-500">💡 Suggestion available</div>
+          )}
+        </div>
+      )
+    },
+    [formState, handleFieldChange]
+  )
 
   // Render page (default implementation)
-  const renderPageDefault = useCallback((page: FormPage, children: React.ReactNode) => {
-    return (
-      <div className="space-y-6">
-        {page.title && (
-          <h2 className="text-2xl font-bold">{page.title}</h2>
-        )}
-        {page.description && (
-          <p className="text-muted-foreground">{page.description}</p>
-        )}
-        <div className="space-y-4">
-          {children}
+  const renderPageDefault = useCallback(
+    (page: FormPage, children: React.ReactNode) => {
+      return (
+        <div className="space-y-6">
+          {page.title && <h2 className="text-2xl font-bold">{page.title}</h2>}
+          {page.description && (
+            <p className="text-muted-foreground">{page.description}</p>
+          )}
+          <div className="space-y-4">{children}</div>
         </div>
-      </div>
-    )
-  }, [])
+      )
+    },
+    []
+  )
 
   // Render progress (default implementation)
-  const renderProgressDefault = useCallback((current: number, total: number, progress: number) => {
-    return (
-      <div className="space-y-2 mb-6">
-        <div className="flex justify-between text-sm text-muted-foreground">
-          <span>Step {current} of {total}</span>
-          <span>{Math.round(progress)}%</span>
+  const renderProgressDefault = useCallback(
+    (current: number, total: number, progress: number) => {
+      return (
+        <div className="mb-6 space-y-2">
+          <div className="flex justify-between text-sm text-muted-foreground">
+            <span>
+              Step {current} of {total}
+            </span>
+            <span>{Math.round(progress)}%</span>
+          </div>
+          <div className="h-2 overflow-hidden rounded-full bg-gray-200">
+            <div
+              className="h-full bg-blue-500 transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
         </div>
-        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-blue-500 transition-all duration-300"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      </div>
-    )
-  }, [])
-
-  // Check if we should show page
-  const isPageVisible = useCallback((page: FormPage): boolean => {
-    // TODO: Implement conditional page logic based on showIf
-    return true
-  }, [])
+      )
+    },
+    []
+  )
 
   // Render current page fields
   const renderFields = useCallback(() => {
@@ -370,10 +456,10 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
       return <div>No page defined</div>
     }
 
-    return currentPage.fields.map(field => {
+    return currentPage.fields.map((field) => {
       // Check field conditional logic
       if (field.showIf) {
-        if (typeof field.showIf === 'function') {
+        if (typeof field.showIf === "function") {
           if (!field.showIf(formState.values)) {
             return null
           }
@@ -385,42 +471,57 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
       const value = formState.getValue(field.name)
 
       if (renderField) {
-        return renderField(field, value, (newValue) => handleFieldChange(field.name, newValue))
+        return renderField(field, value, (newValue) =>
+          handleFieldChange(field.name, newValue)
+        )
       }
 
       return renderFieldDefault(field, value)
     })
-  }, [currentPage, formState, renderField, renderFieldDefault, handleFieldChange])
+  }, [
+    currentPage,
+    formState,
+    renderField,
+    renderFieldDefault,
+    handleFieldChange,
+  ])
 
   // Calculate progress
-  const progress = ((currentPageIndex + 1) / schema.pages.length) * 100
+  const progress = hasPages ? ((currentPageIndex + 1) / totalPages) * 100 : 100
 
   // Main render
   return (
-    <div className="w-full min-h-full flex flex-col">
+    <div className="flex min-h-full w-full flex-col">
       {/* Progress indicator */}
       <div className="px-6 pt-6">
         {renderProgress
-          ? renderProgress(currentPageIndex + 1, schema.pages.length, progress)
-          : renderProgressDefault(currentPageIndex + 1, schema.pages.length, progress)
-        }
+          ? renderProgress(currentPageIndex + 1, totalPages, progress)
+          : renderProgressDefault(currentPageIndex + 1, totalPages, progress)}
 
         {/* Background job indicator */}
         {backgroundJob.jobInfo?.isActive && (
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
+          <div className="mb-6 rounded-md border border-blue-200 bg-blue-50 p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium">Analyzing your files...</p>
                 <p className="text-sm text-muted-foreground">
-                  {backgroundJob.jobInfo.fieldsCompleted} of{' '}
-                  {backgroundJob.jobInfo.fieldsCompleted + backgroundJob.jobInfo.fieldsPending} fields completed
+                  {backgroundJob.jobInfo.fieldsCompleted} of{" "}
+                  {backgroundJob.jobInfo.fieldsCompleted +
+                    backgroundJob.jobInfo.fieldsPending}{" "}
+                  fields completed
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-sm font-medium">{Math.round(backgroundJob.jobInfo.progress * 100)}%</p>
+                <p className="text-sm font-medium">
+                  {Math.round(backgroundJob.jobInfo.progress * 100)}%
+                </p>
                 {backgroundJob.jobInfo.estimatedTimeRemaining && (
                   <p className="text-xs text-muted-foreground">
-                    ~{Math.round(backgroundJob.jobInfo.estimatedTimeRemaining / 60)}m remaining
+                    ~
+                    {Math.round(
+                      backgroundJob.jobInfo.estimatedTimeRemaining / 60
+                    )}
+                    m remaining
                   </p>
                 )}
               </div>
@@ -428,7 +529,10 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
             <div className="mt-2">
               <button
                 type="button"
-                onClick={() => backgroundJob.jobInfo && backgroundJob.cancelJob(backgroundJob.jobInfo.jobId)}
+                onClick={() =>
+                  backgroundJob.jobInfo &&
+                  backgroundJob.cancelJob(backgroundJob.jobInfo.jobId)
+                }
                 className="text-sm text-red-500 hover:text-red-700"
               >
                 Cancel
@@ -439,52 +543,64 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
       </div>
 
       {/* Form */}
-      <form ref={formElementRef} onSubmit={handleSubmit} className="flex-1 flex flex-col px-6">
+      <form
+        ref={formElementRef}
+        onSubmit={handleSubmit}
+        className="flex flex-1 flex-col px-6"
+      >
         <div className="flex-1">
-          {renderPage
-            ? renderPage(currentPage, renderFields())
-            : renderPageDefault(currentPage, renderFields())
-          }
+          {currentPage
+            ? renderPage
+              ? renderPage(currentPage, renderFields())
+              : renderPageDefault(currentPage, renderFields())
+            : renderPageDefault({ id: "empty", fields: [] }, renderFields())}
         </div>
 
         {/* Navigation */}
         {renderNavigation ? (
           renderNavigation({
             currentPageIndex,
-            totalPages: schema.pages.length,
+            totalPages,
             onPrevious: handlePrevPage,
             onNext: handleNextPage,
-            canGoPrevious: currentPageIndex > 0,
-            canGoNext: currentPageIndex < schema.pages.length - 1,
-            isLastPage: currentPageIndex === schema.pages.length - 1,
+            canGoPrevious: showPrevious,
+            canGoNext: showNext,
+            isLastPage,
           })
         ) : (
-          <div className="flex justify-between mt-8 py-4">
-            <button
-              type="button"
-              onClick={handlePrevPage}
-              disabled={currentPageIndex === 0}
-              className="px-4 py-2 border rounded-md disabled:opacity-50"
-            >
-              Previous
-            </button>
+          <div className="mt-8 flex items-center justify-between gap-4 py-4">
+            <div>
+              {showPrevious && (
+                <button
+                  type="button"
+                  onClick={handlePrevPage}
+                  className="rounded-md border px-4 py-2"
+                >
+                  Previous
+                </button>
+              )}
+            </div>
 
-            {currentPageIndex < schema.pages.length - 1 ? (
-              <button
-                type="button"
-                onClick={handleNextPage}
-                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-              >
-              Next
-              </button>
-            ) : (
-              <button
-                type="submit"
-                className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
-              >
-                Submit
-              </button>
-            )}
+            <div className="ml-auto flex items-center gap-3">
+              {showNext && (
+                <button
+                  type="button"
+                  onClick={handleNextPage}
+                  className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+                >
+                  Next
+                </button>
+              )}
+
+              {showSubmit && (
+                <button
+                  type="submit"
+                  className="rounded-md bg-green-500 px-4 py-2 text-white hover:bg-green-600"
+                >
+                  Submit
+                </button>
+              )}
+            </div>
           </div>
         )}
       </form>
@@ -492,4 +608,4 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
   )
 })
 
-Renderer.displayName = 'Renderer'
+Renderer.displayName = "Renderer"

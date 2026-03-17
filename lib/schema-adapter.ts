@@ -4,8 +4,8 @@
  */
 
 import { nanoid } from 'nanoid'
-import type { FormPage } from '@/types/form-store'
-import type { ShormsSchema } from '@/components/shorms/renderer/types'
+import type { FormPage } from '../types/form-store'
+import type { ShormsSchema } from '../components/shorms/renderer/types'
 
 /**
  * Convert legacy FormPage[] to new ShormsSchema format

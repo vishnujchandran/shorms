@@ -1,4 +1,4 @@
-import type { FormField } from "@/types/field"
+import type { FormField } from "./field"
 
 export interface FormPage {
   id: string

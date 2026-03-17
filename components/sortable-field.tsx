@@ -2,7 +2,7 @@ import * as React from "react"
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 
-import { Field, type FieldProps } from "@/components/field"
+import { Field, type FieldProps } from "./field"
 
 export const SortableField = React.memo(({ formField, form, onDelete, onEdit }: FieldProps) => {
   const {

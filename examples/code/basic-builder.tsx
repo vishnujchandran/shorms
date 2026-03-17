@@ -7,7 +7,7 @@
 
 'use client'
 
-import { Builder, useBuilderState } from '@/index'
+import { Builder, useBuilderState } from '../..'
 
 export default function BasicBuilderExample() {
   // Initialize builder with default state

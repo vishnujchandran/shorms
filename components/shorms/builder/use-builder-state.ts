@@ -13,7 +13,7 @@ import {
   TypeIcon,
   UploadIcon,
 } from 'lucide-react'
-import { FieldType, type FormField } from '@/types/field'
+import { FieldType, type FormField } from '../../../types/field'
 import type { FormPage } from './types'
 
 // Map field types to their icons for hydration from localStorage

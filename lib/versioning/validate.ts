@@ -1,4 +1,4 @@
-import type { ShormsSchema } from "@/types/schema"
+import type { ShormsSchema } from "../../types/schema"
 import { SUPPORTED_FIELD_TYPES, SUPPORTED_VERSIONS } from "./constants"
 
 export interface ValidationResult {

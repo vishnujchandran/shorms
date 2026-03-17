@@ -3,26 +3,26 @@ import { format } from "date-fns"
 import { produce } from "immer"
 import { CalendarIcon, Plus, Trash2 } from "lucide-react"
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { cn } from "../lib/utils"
+import { Button } from "./ui/button"
+import { Calendar } from "./ui/calendar"
+import { Input } from "./ui/input"
+import { Label } from "./ui/label"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
-import { ScrollArea } from "@/components/ui/scroll-area"
+} from "./ui/popover"
+import { ScrollArea } from "./ui/scroll-area"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "./ui/select"
 
-import { FieldType, type FormField } from "@/types/field"
+import { FieldType, type FormField } from "../types/field"
 
 interface RenderEditFormFieldInputsProps {
   selectedField: FormField

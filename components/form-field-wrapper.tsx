@@ -6,7 +6,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
+} from "./ui/form"
 
 interface FormFieldWrapperProps {
   label: string

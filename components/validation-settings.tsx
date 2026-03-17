@@ -2,11 +2,11 @@
 
 import * as React from "react"
 
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
+import { Input } from "./ui/input"
+import { Label } from "./ui/label"
+import { Switch } from "./ui/switch"
 
-import { FieldType, type FormField } from "@/types/field"
+import { FieldType, type FormField } from "../types/field"
 
 interface ValidationSettingsProps {
   selectedField: FormField

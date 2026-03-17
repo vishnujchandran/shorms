@@ -6,10 +6,10 @@
 'use client'
 
 import * as React from 'react'
-import type { FormPage } from '@/types/form-store'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { cn } from '@/lib/utils'
+import type { FormPage } from '../../types/form-store'
+import { Button } from '../ui/button'
+import { Label } from '../ui/label'
+import { cn } from '../../lib/utils'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 export interface ShadcnViewerProps {

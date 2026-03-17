@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { generateZodSchema, generateDefaultValues } from '../form-schema'
-import { FieldType, type FormField } from '@/types/field'
+import { FieldType, type FormField } from '../../types/field'
 import { Type } from 'lucide-react'
 
 describe('generateZodSchema', () => {

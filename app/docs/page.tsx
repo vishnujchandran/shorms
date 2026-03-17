@@ -1,6 +1,6 @@
 import { promises as fs } from 'fs'
 import path from 'path'
-import { MarkdownPage } from '@/components/markdown-page'
+import { MarkdownPage } from '../../components/markdown-page'
 
 export const metadata = {
   title: 'Documentation - Shorms',

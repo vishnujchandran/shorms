@@ -1,4 +1,4 @@
-import type { ShormsSchema } from "@/types/schema"
+import type { ShormsSchema } from "../../types/schema"
 import { SCHEMA_VERSION, SUPPORTED_VERSIONS } from "./constants"
 
 export function migrateSchema(

@@ -2,22 +2,22 @@
 
 import * as React from "react"
 
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
+import { Input } from "./ui/input"
+import { Label } from "./ui/label"
+import { ScrollArea } from "./ui/scroll-area"
+import { Separator } from "./ui/separator"
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
-} from "@/components/ui/sheet"
-import { Textarea } from "@/components/ui/textarea"
-import { RenderEditFormFieldInputs } from "@/components/render-edit-form-field-inputs"
-import { ValidationSettings } from "@/components/validation-settings"
+} from "./ui/sheet"
+import { Textarea } from "./ui/textarea"
+import { RenderEditFormFieldInputs } from "./render-edit-form-field-inputs"
+import { ValidationSettings } from "./validation-settings"
 
-import type { FormField } from "@/types/field"
+import type { FormField } from "../types/field"
 
 interface EditFormFieldProps {
   open: boolean

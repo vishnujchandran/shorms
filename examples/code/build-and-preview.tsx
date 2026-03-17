@@ -12,7 +12,7 @@ import {
   Renderer,
   useBuilderState,
   type FormPage
-} from '@/index'
+} from '../..'
 import { useState } from 'react'
 
 type Mode = 'build' | 'preview'

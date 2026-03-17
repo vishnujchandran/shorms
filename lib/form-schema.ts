@@ -1,6 +1,6 @@
 import * as z from "zod"
 
-import { FieldType, FormField } from "@/types/field"
+import { FieldType, FormField } from "../types/field"
 
 export function generateZodSchema(formFields: FormField[]) {
   const formSchemaObject: Record<string, z.ZodType<any, any>> = {}

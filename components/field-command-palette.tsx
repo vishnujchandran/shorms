@@ -1,13 +1,13 @@
 "use client"
 
 import * as React from "react"
-import { useFormStore } from "@/stores/form"
+import { useFormStore } from "../stores/form"
 import { Plus, SearchCode } from "lucide-react"
 import { useShallow } from "zustand/shallow"
 
-import { fields } from "@/lib/constants"
-import { generateFieldId, generateFieldName } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { fields } from "../lib/constants"
+import { generateFieldId, generateFieldName } from "../lib/utils"
+import { Button } from "./ui/button"
 import {
   Command,
   CommandEmpty,
@@ -15,16 +15,16 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command"
+} from "./ui/command"
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "./ui/dialog"
 
-import { FormState } from "@/types/form-store"
+import { FormState } from "../types/form-store"
 
 const selector = (state: FormState) => ({
   addFormField: state.addFormField,

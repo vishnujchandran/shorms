@@ -3,9 +3,9 @@
 import * as React from 'react'
 import { FileJson2, Info, Layers } from 'lucide-react'
 
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
-import { cn } from '@/lib/utils'
+import { ScrollArea } from '../../ui/scroll-area'
+import { Separator } from '../../ui/separator'
+import { cn } from '../../../lib/utils'
 
 import type { FormContextProps } from './types'
 

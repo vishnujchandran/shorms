@@ -1,4 +1,4 @@
-import { fields } from '@/lib/constants'
+import { fields } from '../../../lib/constants'
 import type { FieldTemplate } from './types'
 
 /**

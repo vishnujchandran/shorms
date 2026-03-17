@@ -3,7 +3,7 @@ import { persist } from "zustand/middleware"
 import { immer } from "zustand/middleware/immer"
 import { nanoid } from "nanoid"
 
-import { FormState } from "@/types/form-store"
+import { FormState } from "../types/form-store"
 
 const INITIAL_PAGE_ID = "page-1"
 

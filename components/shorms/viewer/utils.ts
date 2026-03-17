@@ -2,10 +2,10 @@
  * Viewer Utility Functions
  */
 
-import type { FormPage } from '@/types/form-store'
-import type { FormField } from '@/types/field'
+import type { FormPage } from '../../../types/form-store'
+import type { FormField } from '../../../types/field'
 import type { FormStatistics } from './types'
-import { FieldType } from '@/types/field'
+import { FieldType } from '../../../types/field'
 
 // Validation type from the field
 type FieldValidation = NonNullable<FormField['validation']>

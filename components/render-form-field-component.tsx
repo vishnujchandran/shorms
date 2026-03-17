@@ -2,10 +2,10 @@ import { format } from "date-fns"
 import { CalendarIcon, CheckIcon, ChevronsUpDownIcon } from "lucide-react"
 import type { ControllerRenderProps } from "react-hook-form"
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import { Checkbox } from "@/components/ui/checkbox"
+import { cn } from "../lib/utils"
+import { Button } from "./ui/button"
+import { Calendar } from "./ui/calendar"
+import { Checkbox } from "./ui/checkbox"
 import {
   Command,
   CommandEmpty,
@@ -13,34 +13,34 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command"
+} from "./ui/command"
 import {
   FormControl,
   FormDescription,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
+} from "./ui/form"
+import { Input } from "./ui/input"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+} from "./ui/popover"
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Slider } from "@/components/ui/slider"
-import { Switch } from "@/components/ui/switch"
-import { Textarea } from "@/components/ui/textarea"
-import { FormFieldWrapper } from "@/components/form-field-wrapper"
+} from "./ui/select"
+import { Slider } from "./ui/slider"
+import { Switch } from "./ui/switch"
+import { Textarea } from "./ui/textarea"
+import { FormFieldWrapper } from "./form-field-wrapper"
 
-import { FieldType, type FormField as FormFieldType } from "@/types/field"
+import { FieldType, type FormField as FormFieldType } from "../types/field"
 
 interface RenderFormFieldComponentProps {
   formField: FormFieldType
