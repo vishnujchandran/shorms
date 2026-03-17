@@ -84,11 +84,11 @@ export function ShadcnRenderer({
     props.schema?.pages?.length ?? 1
   )
   const [, forceUpdate] = React.useReducer((x) => x + 1, 0)
-  const [navUpdateTrigger, setNavUpdateTrigger] = React.useState(0)
 
   const rendererRef = React.useRef<any>(null)
   const pendingNavProps = React.useRef<NavigationProps | null>(null)
   const lastNavProps = React.useRef<NavigationProps | null>(null)
+  const isUpdating = React.useRef(false)
 
   // Custom field renderer using shadcn components
   const renderField = React.useCallback(
@@ -398,13 +398,16 @@ export function ShadcnRenderer({
   // Capture navigation props from Renderer, render nothing inside
   const renderNavigation = React.useCallback((props: NavigationProps) => {
     pendingNavProps.current = props
-    // Trigger a re-render so the effect can detect the change
-    setNavUpdateTrigger((prev) => prev + 1)
     return null // Don't render anything inside Renderer
   }, [])
 
-  // Update state when navigation props change
-  React.useLayoutEffect(() => {
+  // Update state when navigation props change (runs after render)
+  React.useEffect(() => {
+    if (isUpdating.current) {
+      isUpdating.current = false
+      return
+    }
+
     const current = pendingNavProps.current
     if (current) {
       const last = lastNavProps.current
@@ -414,13 +417,13 @@ export function ShadcnRenderer({
         last.currentPageIndex !== current.currentPageIndex ||
         last.totalPages !== current.totalPages
       ) {
+        isUpdating.current = true
         setCurrentPageIndex(current.currentPageIndex)
         setTotalPages(current.totalPages)
-        forceUpdate()
         lastNavProps.current = current
       }
     }
-  }, [navUpdateTrigger])
+  })
 
   // Handle submit from external toolbar
   const handleToolbarSubmit = React.useCallback(() => {
