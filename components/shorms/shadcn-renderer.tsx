@@ -80,11 +80,13 @@ export function ShadcnRenderer({
 }: ShadcnRendererProps) {
   // State to track current page index and total pages
   const [currentPageIndex, setCurrentPageIndex] = React.useState(0)
-  const [totalPages, setTotalPages] = React.useState(props.schema?.pages?.length ?? 1)
-  const [, forceUpdate] = React.useReducer(x => x + 1, 0)
+  const [totalPages, setTotalPages] = React.useState(
+    props.schema?.pages?.length ?? 1
+  )
+  const [, forceUpdate] = React.useReducer((x) => x + 1, 0)
+  const [navProps, setNavProps] = React.useState<NavigationProps | null>(null)
 
   const rendererRef = React.useRef<any>(null)
-  const pendingNavProps = React.useRef<NavigationProps | null>(null)
 
   // Custom field renderer using shadcn components
   const renderField = React.useCallback(
@@ -393,12 +395,18 @@ export function ShadcnRenderer({
 
   // Capture navigation props from Renderer, render nothing inside
   const renderNavigation = React.useCallback((props: NavigationProps) => {
-    pendingNavProps.current = { ...props }
-    setCurrentPageIndex(props.currentPageIndex)
-    setTotalPages(props.totalPages)
-    forceUpdate()
+    setNavProps(props)
     return null // Don't render anything inside Renderer
   }, [])
+
+  // Update state when navigation props change
+  React.useEffect(() => {
+    if (navProps) {
+      setCurrentPageIndex(navProps.currentPageIndex)
+      setTotalPages(navProps.totalPages)
+      forceUpdate()
+    }
+  }, [navProps])
 
   // Handle submit from external toolbar
   const handleToolbarSubmit = React.useCallback(() => {
@@ -406,7 +414,7 @@ export function ShadcnRenderer({
   }, [])
 
   // Derive navigation state from state (not from props to avoid timing issues)
-  const toolbarNavProps = pendingNavProps.current
+  const toolbarNavProps = navProps
   const derivedTotalPages = totalPages
   const derivedCurrentIndex = currentPageIndex
   const derivedIsFirst = derivedCurrentIndex === 0
@@ -421,7 +429,8 @@ export function ShadcnRenderer({
   const derivedCanNext = derivedTotalPages > 1 && !derivedIsLast
 
   // Calculate progress for toolbar (show 0–100% even for single-page forms)
-  const progress = ((derivedCurrentIndex + 1) / Math.max(derivedTotalPages, 1)) * 100
+  const progress =
+    ((derivedCurrentIndex + 1) / Math.max(derivedTotalPages, 1)) * 100
 
   return (
     <div className={cn("flex h-full w-full flex-col", className)}>
