@@ -84,9 +84,11 @@ export function ShadcnRenderer({
     props.schema?.pages?.length ?? 1
   )
   const [, forceUpdate] = React.useReducer((x) => x + 1, 0)
-  const [navProps, setNavProps] = React.useState<NavigationProps | null>(null)
+  const [navUpdateTrigger, setNavUpdateTrigger] = React.useState(0)
 
   const rendererRef = React.useRef<any>(null)
+  const pendingNavProps = React.useRef<NavigationProps | null>(null)
+  const lastNavProps = React.useRef<NavigationProps | null>(null)
 
   // Custom field renderer using shadcn components
   const renderField = React.useCallback(
@@ -395,18 +397,30 @@ export function ShadcnRenderer({
 
   // Capture navigation props from Renderer, render nothing inside
   const renderNavigation = React.useCallback((props: NavigationProps) => {
-    setNavProps(props)
+    pendingNavProps.current = props
+    // Trigger a re-render so the effect can detect the change
+    setNavUpdateTrigger((prev) => prev + 1)
     return null // Don't render anything inside Renderer
   }, [])
 
   // Update state when navigation props change
-  React.useEffect(() => {
-    if (navProps) {
-      setCurrentPageIndex(navProps.currentPageIndex)
-      setTotalPages(navProps.totalPages)
-      forceUpdate()
+  React.useLayoutEffect(() => {
+    const current = pendingNavProps.current
+    if (current) {
+      const last = lastNavProps.current
+      // Only update if the props actually changed
+      if (
+        !last ||
+        last.currentPageIndex !== current.currentPageIndex ||
+        last.totalPages !== current.totalPages
+      ) {
+        setCurrentPageIndex(current.currentPageIndex)
+        setTotalPages(current.totalPages)
+        forceUpdate()
+        lastNavProps.current = current
+      }
     }
-  }, [navProps])
+  }, [navUpdateTrigger])
 
   // Handle submit from external toolbar
   const handleToolbarSubmit = React.useCallback(() => {
@@ -414,7 +428,7 @@ export function ShadcnRenderer({
   }, [])
 
   // Derive navigation state from state (not from props to avoid timing issues)
-  const toolbarNavProps = navProps
+  const toolbarNavProps = pendingNavProps.current
   const derivedTotalPages = totalPages
   const derivedCurrentIndex = currentPageIndex
   const derivedIsFirst = derivedCurrentIndex === 0
