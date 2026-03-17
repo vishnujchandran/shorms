@@ -73,6 +73,7 @@ routing, docs/changelog pages.
 | # | Title | Type | Status |
 |---|-------|------|--------|
 | 01 | Navigation Buttons Always Show Next Only | Bug | Open |
+| 02 | Remove Next.js dep, ship as pure React pkg | Enhancement | Open |
 
 ## Known Rough Edges
 
