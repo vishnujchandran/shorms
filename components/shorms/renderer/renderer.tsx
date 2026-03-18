@@ -13,6 +13,8 @@ import React, {
   useState,
 } from "react"
 
+import { toast } from "@/hooks/use-toast"
+
 import type { FormField, FormPage, RendererProps } from "./types"
 import { useBackgroundJob } from "./use-background-job"
 import { useFormState } from "./use-form-state"
@@ -204,6 +206,25 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
     })
 
     if (hasBlockingErrors || !currentPage) {
+      // Notify user about required fields
+      const missingFields: string[] = []
+      pageValidation.forEach((result, fieldId) => {
+        if (!result.valid && result.blocking) {
+          missingFields.push(fieldId)
+        }
+      })
+
+      // Show a toast with a short message and optional list of first few fields
+      toast({
+        title: "Please fill required fields",
+        description:
+          missingFields.length > 0
+            ? `Missing: ${missingFields.slice(0, 3).join(", ")}${
+                missingFields.length > 3 ? "…" : ""
+              }`
+            : undefined,
+        duration: 4000,
+      })
       return
     }
 
