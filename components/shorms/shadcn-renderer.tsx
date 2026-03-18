@@ -97,11 +97,12 @@ export function ShadcnRenderer({
   // Custom field renderer using shadcn components - memoized to prevent unnecessary re-renders
   const renderField = React.useCallback(
     (field: ShormsFormField, value: any, onChange: (value: any) => void) => {
+      const isRequired = field.validation?.required ?? field.required ?? false
       return (
         <div key={field.id} className="space-y-2">
           <Label htmlFor={field.name}>
             {field.label}
-            {field.required && <span className="ml-1 text-destructive">*</span>}
+            {isRequired && <span className="ml-1 text-destructive">*</span>}
           </Label>
 
           {field.description && (
@@ -118,6 +119,7 @@ export function ShadcnRenderer({
   // Render different input types with shadcn components - memoized to prevent unnecessary re-renders
   const renderFieldInput = React.useCallback(
     (field: ShormsFormField, value: any, onChange: (value: any) => void) => {
+      const isRequired = field.validation?.required ?? field.required ?? false
       // Extract common properties from config if available
       const placeholder = (field.config?.placeholder ||
         field.config?.placeholderText) as string | undefined
@@ -140,7 +142,7 @@ export function ShadcnRenderer({
               value={value || ""}
               onChange={(e) => onChange(e.target.value)}
               placeholder={placeholder}
-              required={field.required}
+              required={isRequired}
             />
           )
 
@@ -153,7 +155,7 @@ export function ShadcnRenderer({
               value={value || ""}
               onChange={(e) => onChange(e.target.value)}
               placeholder={placeholder}
-              required={field.required}
+              required={isRequired}
               min={field.validation?.min}
               max={field.validation?.max}
             />
@@ -167,7 +169,7 @@ export function ShadcnRenderer({
               value={value || ""}
               onChange={(e) => onChange(e.target.value)}
               placeholder={placeholder}
-              required={field.required}
+              required={isRequired}
               rows={4}
             />
           )

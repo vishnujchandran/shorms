@@ -73,6 +73,9 @@ export type FormValues = Record<string, any>
 // ============================================================================
 
 export interface FieldValidation {
+  // Required toggle (schema-level)
+  required?: boolean
+
   // Built-in validators
   min?: number
   max?: number
@@ -82,6 +85,9 @@ export interface FieldValidation {
   email?: boolean
   url?: boolean
   phone?: boolean | { defaultCountry?: string }
+
+  // Custom messaging
+  errorMessage?: string
 
   // Custom sync validation
   validate?: (value: any, values: FormValues) => true | string

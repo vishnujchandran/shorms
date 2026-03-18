@@ -351,11 +351,12 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
   // Render field (default implementation)
   const renderFieldDefault = useCallback(
     (field: FormField, value: any) => {
+      const isRequired = field.validation?.required ?? field.required ?? false
       return (
         <div key={field.id} className="space-y-2">
           <label htmlFor={field.name} className="block text-sm font-medium">
             {field.label}
-            {field.required && <span className="ml-1 text-red-500">*</span>}
+            {isRequired && <span className="ml-1 text-red-500">*</span>}
           </label>
 
           {field.description && (
@@ -371,7 +372,7 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
                 handleFieldChange(field.name, e.target.value, field.type)
               }
               className="w-full rounded-md border px-3 py-2"
-              required={field.required}
+              required={isRequired}
               rows={4}
             />
           ) : (
@@ -390,7 +391,7 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
                 handleFieldChange(field.name, e.target.value, field.type)
               }
               className="w-full rounded-md border px-3 py-2"
-              required={field.required}
+              required={isRequired}
             />
           )}
 

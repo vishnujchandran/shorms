@@ -101,11 +101,12 @@ export function useValidation(options: UseValidationOptions) {
       return { valid: true }
     }
 
-    // Required check
-    if (field.required && (value === undefined || value === null || value === '')) {
+    // Required check (supports both legacy field.required and validation.required)
+    const isRequired = field.validation?.required ?? field.required
+    if (isRequired && (value === undefined || value === null || value === '')) {
       return {
         valid: false,
-        message: `${field.label} is required`,
+        message: field.validation?.errorMessage || `${field.label} is required`,
         severity: 'error',
         blocking: true,
       }
