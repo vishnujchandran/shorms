@@ -77,6 +77,15 @@ export function FormApp({ mode }: FormAppProps) {
   const [clearDialogOpen, setClearDialogOpen] = React.useState(false)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
 
+  // Submission data persisted in localStorage so it survives route changes
+  const [submissionData, setSubmissionData] = React.useState<Record<string, any> | null>(() => {
+    if (typeof window === 'undefined') return null
+    try {
+      const stored = localStorage.getItem('shorms-submission-data')
+      return stored ? JSON.parse(stored) : null
+    } catch { return null }
+  })
+
   const builderState = useBuilderState()
   const {
     pages,
@@ -190,8 +199,19 @@ export function FormApp({ mode }: FormAppProps) {
   const handleSubmit = React.useCallback(
     (values: any) => {
       console.log('Form submitted:', values)
+      // Flatten page-grouped values into a flat map for the viewer
+      const flat: Record<string, any> = {}
+      if (values && typeof values === 'object') {
+        for (const pageValues of Object.values(values)) {
+          if (pageValues && typeof pageValues === 'object') {
+            Object.assign(flat, pageValues)
+          }
+        }
+      }
+      setSubmissionData(flat)
+      try { localStorage.setItem('shorms-submission-data', JSON.stringify(flat)) } catch {}
       toast({
-        title: 'You submitted the following values:',
+        title: 'Form submitted — switching to Viewer',
         description: (
           <pre className="mt-2 w-[340px] overflow-auto rounded-md bg-slate-950 p-4">
             <code className="overflow-auto text-white">
@@ -200,8 +220,10 @@ export function FormApp({ mode }: FormAppProps) {
           </pre>
         ),
       })
+      // Switch to viewer mode
+      router.push(`/viewer?size=${width}`)
     },
-    [toast]
+    [toast, router, width]
   )
 
   const handleClear = () => {
@@ -428,11 +450,12 @@ export function FormApp({ mode }: FormAppProps) {
           <div className={`mx-auto h-full w-full overflow-hidden rounded-lg border bg-card shadow-sm ${widthClasses[width]}`}>
             <ShadcnViewer
               pages={pages}
+              submissionData={submissionData ?? undefined}
               mode="detailed"
               showValidation={true}
               showFieldTypes={true}
-              title="Schema Viewer"
-              description="Read-only view of form structure"
+              title={submissionData ? "Submission Viewer" : "Schema Viewer"}
+              description={submissionData ? "Submitted form data" : "Read-only view of form structure"}
             />
           </div>
         )}
