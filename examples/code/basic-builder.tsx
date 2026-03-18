@@ -5,9 +5,9 @@
  * Uses the useBuilderState hook for state management.
  */
 
-'use client'
+"use client"
 
-import { Builder, useBuilderState } from '../..'
+import { Builder, useBuilderState } from "../.."
 
 export default function BasicBuilderExample() {
   // Initialize builder with default state
@@ -20,22 +20,25 @@ export default function BasicBuilderExample() {
       metadata: {
         createdAt: new Date().toISOString(),
         totalPages: builder.pages.length,
-        totalFields: builder.pages.reduce((acc, page) => acc + page.fields.length, 0)
-      }
+        totalFields: builder.pages.reduce(
+          (acc, page) => acc + page.fields.length,
+          0
+        ),
+      },
     }
 
-    console.log('Form saved:', formData)
-    alert('Form saved to console! Check the developer tools.')
+    console.log("Form saved:", formData)
+    alert("Form saved to console! Check the developer tools.")
   }
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="flex h-screen flex-col">
       {/* Header with save button */}
-      <div className="flex items-center justify-between p-4 border-b">
+      <div className="flex items-center justify-between border-b p-4">
         <h1 className="text-2xl font-bold">Form Builder</h1>
         <button
           onClick={handleSave}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
         >
           Save Form
         </button>

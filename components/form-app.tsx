@@ -71,7 +71,7 @@ export function FormApp({ mode }: FormAppProps) {
   const width: WidthSize = sizeParam && sizes.some(s => s.value === sizeParam) ? sizeParam : 'lg'
 
   const [importOpen, setImportOpen] = React.useState(false)
-  const [selectedFile, setSelectedFile] = React.useState<File | null>(null)
+  const [, setSelectedFile] = React.useState<File | null>(null)
   const [editFieldId, setEditFieldId] = React.useState<string | null>(null)
   const [editPanelOpen, setEditPanelOpen] = React.useState(false)
   const [clearDialogOpen, setClearDialogOpen] = React.useState(false)
@@ -198,7 +198,7 @@ export function FormApp({ mode }: FormAppProps) {
 
   const handleSubmit = React.useCallback(
     (values: any) => {
-      console.log('Form submitted:', values)
+      
       // Flatten page-grouped values into a flat map for the viewer
       const flat: Record<string, any> = {}
       if (values && typeof values === 'object') {

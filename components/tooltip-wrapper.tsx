@@ -3,6 +3,7 @@ import * as React from "react"
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from "./ui/tooltip"
 
@@ -14,9 +15,11 @@ interface TooltipWrapperProps {
 
 export function TooltipWrapper({ children, text, side }: TooltipWrapperProps) {
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>{children}</TooltipTrigger>
-      <TooltipContent side={side}>{text}</TooltipContent>
-    </Tooltip>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>{children}</TooltipTrigger>
+        <TooltipContent side={side}>{text}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   )
 }
