@@ -82,14 +82,17 @@ export function ShadcnRenderer({
   description,
   ...props
 }: ShadcnRendererProps) {
-  // State to track current page index and total pages
-  const [currentPageIndex, setCurrentPageIndex] = React.useState(0)
-  const [totalPages, setTotalPages] = React.useState(
-    props.schema?.pages?.length ?? 1
-  )
-
   const rendererRef = React.useRef<any>(null)
-  const pendingNavProps = React.useRef<NavigationProps | null>(null)
+  const navPropsRef = React.useRef<NavigationProps | null>(null)
+  const mountedRef = React.useRef(false)
+  const [, forceUpdate] = React.useReducer((x: number) => x + 1, 0)
+
+  React.useEffect(() => {
+    mountedRef.current = true
+    // Flush any nav props captured before mount
+    if (navPropsRef.current) forceUpdate()
+    return () => { mountedRef.current = false }
+  }, [])
 
   // Custom field renderer using shadcn components - memoized to prevent unnecessary re-renders
   const renderField = React.useCallback(
@@ -449,44 +452,38 @@ export function ShadcnRenderer({
   // Progress is now in the toolbar, return null here
   const renderProgress = React.useCallback(() => null, [])
 
-  // Capture navigation props from Renderer, render nothing inside
-  const renderNavigation = React.useCallback((props: NavigationProps) => {
-    pendingNavProps.current = { ...props }
-    return null // Don't render anything inside Renderer
-  }, [])
-
-  // Update navigation state from pending props after render
-  React.useLayoutEffect(() => {
-    const pending = pendingNavProps.current
-    if (pending) {
-      setCurrentPageIndex(pending.currentPageIndex)
-      setTotalPages(pending.totalPages)
+  // Capture navigation props from Renderer, trigger re-render when page changes
+  const renderNavigation = React.useCallback((navProps: NavigationProps) => {
+    const prev = navPropsRef.current
+    navPropsRef.current = navProps
+    if (
+      mountedRef.current &&
+      (!prev ||
+        prev.currentPageIndex !== navProps.currentPageIndex ||
+        prev.totalPages !== navProps.totalPages)
+    ) {
+      queueMicrotask(forceUpdate)
     }
-  }, [pendingNavProps.current])
+    return null
+  }, [forceUpdate])
 
   // Handle submit from external toolbar
   const handleToolbarSubmit = React.useCallback(() => {
     rendererRef.current?.submit()
   }, [])
 
-  // Derive navigation state from state (not from props to avoid timing issues)
-  const toolbarNavProps = pendingNavProps.current
-  const derivedTotalPages = totalPages
-  const derivedCurrentIndex = currentPageIndex
-  const derivedIsFirst = derivedCurrentIndex === 0
-  const derivedIsLast = derivedCurrentIndex >= derivedTotalPages - 1
+  // Read navigation state directly from ref (kept fresh by renderNavigation)
+  const nav = navPropsRef.current
+  const totalPages = nav?.totalPages ?? (props.schema?.pages?.length || 1)
+  const currentIndex = nav?.currentPageIndex ?? 0
+  const isFirst = currentIndex === 0
+  const isLast = currentIndex >= totalPages - 1
 
-  // Previous button: show only on multi-page forms, not on first page
-  const showPrevious = derivedTotalPages > 1 && !derivedIsFirst
-  const derivedCanPrevious = derivedTotalPages > 1 && !derivedIsFirst
-
-  // Next button: show only on multi-page forms, not on last page
-  const showNext = derivedTotalPages > 1 && !derivedIsLast
-  const derivedCanNext = derivedTotalPages > 1 && !derivedIsLast
+  const showPrevious = totalPages > 1 && !isFirst
+  const showNext = totalPages > 1 && !isLast
 
   // Calculate progress for toolbar (show 0–100% even for single-page forms)
-  const progress =
-    ((derivedCurrentIndex + 1) / Math.max(derivedTotalPages, 1)) * 100
+  const progress = ((currentIndex + 1) / Math.max(totalPages, 1)) * 100
 
   return (
     <div className={cn("flex h-full w-full flex-col", className)}>
@@ -504,18 +501,20 @@ export function ShadcnRenderer({
 
       {/* Scrollable content area */}
       <div className="flex-1 overflow-auto">
-        <Renderer
-          {...props}
-          ref={rendererRef}
-          renderField={renderField}
-          renderPage={renderPage}
-          renderProgress={renderProgress}
-          renderNavigation={renderNavigation}
-        />
+        <div className="pb-6">
+          <Renderer
+            {...props}
+            ref={rendererRef}
+            renderField={renderField}
+            renderPage={renderPage}
+            renderProgress={renderProgress}
+            renderNavigation={renderNavigation}
+          />
+        </div>
       </div>
 
       {/* Fixed toolbar at bottom */}
-      {derivedTotalPages > 0 && (
+      {totalPages > 0 && (
         <div className="shrink-0 border-t bg-background px-6 py-4">
           <div className="flex items-center gap-4">
             {/* Left: Previous button - only show on multi-page forms, not first page */}
@@ -523,8 +522,8 @@ export function ShadcnRenderer({
               <Button
                 type="button"
                 variant="outline"
-                onClick={toolbarNavProps?.onPrevious}
-                disabled={!derivedCanPrevious || !toolbarNavProps}
+                onClick={nav?.onPrevious}
+                disabled={!nav}
                 className="w-32"
               >
                 <ChevronLeft className="mr-2 h-4 w-4" />
@@ -544,8 +543,8 @@ export function ShadcnRenderer({
             {showNext && (
               <Button
                 type="button"
-                onClick={toolbarNavProps?.onNext}
-                disabled={!derivedCanNext || !toolbarNavProps}
+                onClick={nav?.onNext}
+                disabled={!nav}
                 className="w-32"
               >
                 Next
@@ -554,7 +553,7 @@ export function ShadcnRenderer({
             )}
 
             {/* Right: Submit button - show on last page or single-page forms */}
-            {!showNext && derivedTotalPages > 0 && (
+            {!showNext && totalPages > 0 && (
               <Button
                 type="button"
                 onClick={handleToolbarSubmit}
