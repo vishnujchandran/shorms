@@ -91,7 +91,9 @@ export function ShadcnRenderer({
     mountedRef.current = true
     // Flush any nav props captured before mount
     if (navPropsRef.current) forceUpdate()
-    return () => { mountedRef.current = false }
+    return () => {
+      mountedRef.current = false
+    }
   }, [])
 
   // Custom field renderer using shadcn components - memoized to prevent unnecessary re-renders
@@ -391,9 +393,12 @@ export function ShadcnRenderer({
               id={field.name}
               name={field.name}
               type="file"
+              multiple={field.config?.multiple}
+              accept={field.config?.accept}
               onChange={(e) => {
-                const file = e.target.files?.[0]
-                onChange(file)
+                const files = e.target.files
+                const payload = field.config?.multiple ? files : files?.[0]
+                onChange(payload)
               }}
               required={field.required}
             />
@@ -455,19 +460,22 @@ export function ShadcnRenderer({
   const renderProgress = React.useCallback(() => null, [])
 
   // Capture navigation props from Renderer, trigger re-render when page changes
-  const renderNavigation = React.useCallback((navProps: NavigationProps) => {
-    const prev = navPropsRef.current
-    navPropsRef.current = navProps
-    if (
-      mountedRef.current &&
-      (!prev ||
-        prev.currentPageIndex !== navProps.currentPageIndex ||
-        prev.totalPages !== navProps.totalPages)
-    ) {
-      queueMicrotask(forceUpdate)
-    }
-    return null
-  }, [forceUpdate])
+  const renderNavigation = React.useCallback(
+    (navProps: NavigationProps) => {
+      const prev = navPropsRef.current
+      navPropsRef.current = navProps
+      if (
+        mountedRef.current &&
+        (!prev ||
+          prev.currentPageIndex !== navProps.currentPageIndex ||
+          prev.totalPages !== navProps.totalPages)
+      ) {
+        queueMicrotask(forceUpdate)
+      }
+      return null
+    },
+    [forceUpdate]
+  )
 
   // Handle submit from external toolbar
   const handleToolbarSubmit = React.useCallback(() => {

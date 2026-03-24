@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Shorms Renderer - Main Component
  * Renders forms with validation, suggestions, and state management

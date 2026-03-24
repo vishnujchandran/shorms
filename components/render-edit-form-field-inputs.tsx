@@ -4,15 +4,12 @@ import { produce } from "immer"
 import { CalendarIcon, Plus, Trash2 } from "lucide-react"
 
 import { cn } from "../lib/utils"
+import { FieldType, type FormField } from "../types/field"
 import { Button } from "./ui/button"
 import { Calendar } from "./ui/calendar"
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "./ui/popover"
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
 import { ScrollArea } from "./ui/scroll-area"
 import {
   Select,
@@ -21,8 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select"
-
-import { FieldType, type FormField } from "../types/field"
+import { Switch } from "./ui/switch"
 
 interface RenderEditFormFieldInputsProps {
   selectedField: FormField
@@ -33,7 +29,6 @@ export const RenderEditFormFieldInputs = ({
   selectedField,
   onUpdate,
 }: RenderEditFormFieldInputsProps) => {
-
   const updateChoiceItemValue = React.useCallback(
     (idx: number, value: string) => {
       switch (selectedField.type) {
@@ -350,6 +345,75 @@ export const RenderEditFormFieldInputs = ({
                 })
               }
             />
+          </div>
+        </>
+      )
+    case FieldType.FILE_UPLOAD:
+      return (
+        <>
+          <div className="space-y-2">
+            <Label htmlFor="accept">Accepted file types</Label>
+            <Input
+              id="accept"
+              placeholder="e.g. .pdf,.docx,image/*"
+              value={selectedField.accept ?? ""}
+              onChange={(e) =>
+                onUpdate({
+                  ...selectedField,
+                  accept: e.target.value,
+                })
+              }
+            />
+            <p className="text-xs text-muted-foreground">
+              Comma-separated list (MIME types or extensions). Leave blank to
+              allow all.
+            </p>
+          </div>
+
+          <div className="flex items-center justify-between rounded-lg border p-3">
+            <div className="space-y-1">
+              <Label htmlFor="allow-multiple">Allow multiple files</Label>
+              <p className="text-xs text-muted-foreground">
+                Enable selecting more than one file.
+              </p>
+            </div>
+            <Switch
+              id="allow-multiple"
+              checked={!!selectedField.multiple}
+              onCheckedChange={(checked) =>
+                onUpdate({
+                  ...selectedField,
+                  multiple: checked,
+                })
+              }
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="max-size">Max file size (MB)</Label>
+            <Input
+              id="max-size"
+              type="number"
+              step="0.1"
+              placeholder="e.g. 5"
+              value={selectedField.maxSize ?? ""}
+              onChange={(e) => {
+                const parsed = e.target.value
+                  ? parseFloat(e.target.value)
+                  : undefined
+                onUpdate({
+                  ...selectedField,
+                  maxSize: parsed,
+                  validation: {
+                    ...selectedField.validation,
+                    maxFileSize: parsed,
+                  },
+                })
+              }}
+            />
+            <p className="text-xs text-muted-foreground">
+              Maximum size per file in megabytes.
+            </p>
           </div>
         </>
       )
