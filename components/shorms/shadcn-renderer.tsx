@@ -388,26 +388,23 @@ export function ShadcnRenderer({
           )
 
         case "file": {
-          const accept =
-            (field.config?.accept as string | undefined) ||
-            (field as any).accept ||
-            undefined
-          const multiple =
-            (field.config?.multiple as boolean | undefined) ||
-            (field as any).multiple ||
-            false
-
+          // Support multiple files and accept filter when provided in schema
+          const fileField = field as any
           return (
             <Input
               id={field.name}
               name={field.name}
               type="file"
-              multiple={multiple}
-              accept={accept}
+              accept={fileField.accept}
+              multiple={fileField.multiple}
               onChange={(e) => {
                 const files = e.target.files
-                const payload = multiple ? files : files?.[0]
-                onChange(payload)
+                if (!files) return
+                if (fileField.multiple) {
+                  onChange(files)
+                } else {
+                  onChange(files[0] ?? null)
+                }
               }}
               required={field.required}
             />
@@ -553,7 +550,8 @@ export function ShadcnRenderer({
 
             {/* Center: Progress bar */}
             <div className="h-2 flex-1 overflow-hidden rounded-full bg-secondary">
-              <div className="h-full bg-primary transition-all duration-300"
+              <div
+                className="h-full bg-primary transition-all duration-300"
                 style={{ width: `${progress}%` }}
               />
             </div>
