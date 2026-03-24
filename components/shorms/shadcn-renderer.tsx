@@ -387,22 +387,32 @@ export function ShadcnRenderer({
             </Popover>
           )
 
-        case "file":
+        case "file": {
+          const accept =
+            (field.config?.accept as string | undefined) ||
+            (field as any).accept ||
+            undefined
+          const multiple =
+            (field.config?.multiple as boolean | undefined) ||
+            (field as any).multiple ||
+            false
+
           return (
             <Input
               id={field.name}
               name={field.name}
               type="file"
-              multiple={field.config?.multiple}
-              accept={field.config?.accept}
+              multiple={multiple}
+              accept={accept}
               onChange={(e) => {
                 const files = e.target.files
-                const payload = field.config?.multiple ? files : files?.[0]
+                const payload = multiple ? files : files?.[0]
                 onChange(payload)
               }}
               required={field.required}
             />
           )
+        }
 
         default:
           if (process.env.NODE_ENV !== "production") {
@@ -543,8 +553,7 @@ export function ShadcnRenderer({
 
             {/* Center: Progress bar */}
             <div className="h-2 flex-1 overflow-hidden rounded-full bg-secondary">
-              <div
-                className="h-full bg-primary transition-all duration-300"
+              <div className="h-full bg-primary transition-all duration-300"
                 style={{ width: `${progress}%` }}
               />
             </div>
