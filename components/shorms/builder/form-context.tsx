@@ -1,13 +1,12 @@
-'use client'
+"use client"
 
-import * as React from 'react'
-import { FileJson2, Info, Layers } from 'lucide-react'
+import * as React from "react"
+import { FileJson2, Info, Layers } from "lucide-react"
 
-import { ScrollArea } from '../../ui/scroll-area'
-import { Separator } from '../../ui/separator'
-import { cn } from '../../../lib/utils'
-
-import type { FormContextProps } from './types'
+import { cn } from "../../../lib/utils"
+import { ScrollArea } from "../../ui/scroll-area"
+import { Separator } from "../../ui/separator"
+import type { FormContextProps } from "./types"
 
 /**
  * Form context sidebar component
@@ -21,7 +20,7 @@ export function FormContext({
   sections = {
     statistics: true,
     currentPage: true,
-    tips: true,
+    quickTips: true,
   },
 }: FormContextProps) {
   const activePage = React.useMemo(
@@ -56,7 +55,7 @@ export function FormContext({
 
   return (
     <div
-      className={cn('flex h-full flex-col border-l bg-muted/20', className)}
+      className={cn("flex h-full flex-col border-l bg-muted/20", className)}
       style={{ width: `${width}px` }}
     >
       <ScrollArea className="flex-1">
@@ -92,8 +91,8 @@ export function FormContext({
                     Current Page
                   </span>
                   <span className="text-sm font-semibold">
-                    {stats.currentPageFields}{' '}
-                    {stats.currentPageFields === 1 ? 'field' : 'fields'}
+                    {stats.currentPageFields}{" "}
+                    {stats.currentPageFields === 1 ? "field" : "fields"}
                   </span>
                 </div>
                 <Separator />
@@ -165,7 +164,7 @@ export function FormContext({
           )}
 
           {/* Tips */}
-          {sections.tips && (
+          {sections.quickTips && (
             <div>
               <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 <FileJson2 className="h-3.5 w-3.5" />

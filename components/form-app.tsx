@@ -1,12 +1,37 @@
-'use client'
+"use client"
 
-import * as React from 'react'
-import { Book, ChevronDown, Download, Github, History, Hammer, Play, Eye, Trash2, Upload } from 'lucide-react'
-import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { VERSION } from '../lib/version'
-import { useToast } from '../hooks/use-toast'
-import { Button } from './ui/button'
+import * as React from "react"
+import Link from "next/link"
+import { useRouter, useSearchParams } from "next/navigation"
+import {
+  Book,
+  ChevronDown,
+  Download,
+  Eye,
+  Github,
+  Hammer,
+  History,
+  Play,
+  Trash2,
+  Upload,
+} from "lucide-react"
+
+import { useToast } from "../hooks/use-toast"
+import { formPagesToSchema } from "../lib/schema-adapter"
+import { generateFieldId, generateFieldName } from "../lib/utils"
+import { VERSION } from "../lib/version"
+import type { FormField } from "../types/field"
+import { ControlledFieldCommandPalette } from "./controlled-field-command-palette"
+import { EditFormField } from "./edit-form-field"
+import { Logo } from "./logo"
+import { ModeToggle } from "./mode-toggle"
+import { Builder } from "./shorms/builder/builder"
+import { defaultFieldTemplates } from "./shorms/builder/constants"
+import type { FormPage } from "./shorms/builder/types"
+import { useBuilderState } from "./shorms/builder/use-builder-state"
+import { ShadcnRenderer } from "./shorms/shadcn-renderer"
+import { ShadcnViewer } from "./shorms/shadcn-viewer"
+import { Button } from "./ui/button"
 import {
   Dialog,
   DialogContent,
@@ -14,47 +39,34 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from './ui/dialog'
+} from "./ui/dialog"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from './ui/dropdown-menu'
-import { Input } from './ui/input'
-import { Separator } from './ui/separator'
-import { Logo } from './logo'
-import { ModeToggle } from './mode-toggle'
-import { Builder } from './shorms/builder/builder'
-import { useBuilderState } from './shorms/builder/use-builder-state'
-import { defaultFieldTemplates } from './shorms/builder/constants'
-import { ShadcnRenderer } from './shorms/shadcn-renderer'
-import { ShadcnViewer } from './shorms/shadcn-viewer'
-import { ControlledFieldCommandPalette } from './controlled-field-command-palette'
-import { EditFormField } from './edit-form-field'
-import { formPagesToSchema } from '../lib/schema-adapter'
-import { generateFieldId, generateFieldName } from '../lib/utils'
-import type { FormPage } from './shorms/builder/types'
-import type { FormField } from '../types/field'
+} from "./ui/dropdown-menu"
+import { Input } from "./ui/input"
+import { Separator } from "./ui/separator"
 
-export type WidthSize = 'sm' | 'md' | 'lg' | 'xl' | 'full'
-export type AppMode = 'builder' | 'renderer' | 'viewer'
+export type WidthSize = "sm" | "md" | "lg" | "xl" | "full"
+export type AppMode = "builder" | "renderer" | "viewer"
 
 const widthClasses: Record<WidthSize, string> = {
-  sm: 'max-w-2xl',
-  md: 'max-w-3xl',
-  lg: 'max-w-4xl',
-  xl: 'max-w-5xl',
-  full: 'max-w-6xl',
+  sm: "max-w-2xl",
+  md: "max-w-3xl",
+  lg: "max-w-4xl",
+  xl: "max-w-5xl",
+  full: "max-w-6xl",
 }
 
 const sizes: Array<{ value: WidthSize; label: string }> = [
-  { value: 'sm', label: 'SM' },
-  { value: 'md', label: 'MD' },
-  { value: 'lg', label: 'LG' },
-  { value: 'xl', label: 'XL' },
-  { value: 'full', label: 'Full' },
+  { value: "sm", label: "SM" },
+  { value: "md", label: "MD" },
+  { value: "lg", label: "LG" },
+  { value: "xl", label: "XL" },
+  { value: "full", label: "Full" },
 ]
 
 interface FormAppProps {
@@ -67,8 +79,9 @@ export function FormApp({ mode }: FormAppProps) {
   const { toast } = useToast()
 
   // Get size from URL or default to 'lg'
-  const sizeParam = searchParams.get('size') as WidthSize | null
-  const width: WidthSize = sizeParam && sizes.some(s => s.value === sizeParam) ? sizeParam : 'lg'
+  const sizeParam = searchParams.get("size") as WidthSize | null
+  const width: WidthSize =
+    sizeParam && sizes.some((s) => s.value === sizeParam) ? sizeParam : "lg"
 
   const [importOpen, setImportOpen] = React.useState(false)
   const [, setSelectedFile] = React.useState<File | null>(null)
@@ -78,12 +91,17 @@ export function FormApp({ mode }: FormAppProps) {
   const fileInputRef = React.useRef<HTMLInputElement>(null)
 
   // Submission data persisted in localStorage so it survives route changes
-  const [submissionData, setSubmissionData] = React.useState<Record<string, any> | null>(() => {
-    if (typeof window === 'undefined') return null
+  const [submissionData, setSubmissionData] = React.useState<Record<
+    string,
+    any
+  > | null>(() => {
+    if (typeof window === "undefined") return null
     try {
-      const stored = localStorage.getItem('shorms-submission-data')
+      const stored = localStorage.getItem("shorms-submission-data")
       return stored ? JSON.parse(stored) : null
-    } catch { return null }
+    } catch {
+      return null
+    }
   })
 
   const builderState = useBuilderState()
@@ -126,7 +144,7 @@ export function FormApp({ mode }: FormAppProps) {
 
   const setWidth = (newWidth: WidthSize) => {
     const params = new URLSearchParams(searchParams.toString())
-    params.set('size', newWidth)
+    params.set("size", newWidth)
     router.push(`/${mode}?${params.toString()}`)
   }
 
@@ -139,19 +157,20 @@ export function FormApp({ mode }: FormAppProps) {
     if (!importOpen) {
       setSelectedFile(null)
       if (fileInputRef.current) {
-        fileInputRef.current.value = ''
+        fileInputRef.current.value = ""
       }
     }
   }, [importOpen])
 
   const handleExport = () => {
     const dataStr = JSON.stringify(pages, null, 2)
-    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr)
-    const linkElement = document.createElement('a')
-    linkElement.setAttribute('href', dataUri)
-    linkElement.setAttribute('download', 'shorms-schema.json')
+    const dataUri =
+      "data:application/json;charset=utf-8," + encodeURIComponent(dataStr)
+    const linkElement = document.createElement("a")
+    linkElement.setAttribute("href", dataUri)
+    linkElement.setAttribute("download", "shorms-schema.json")
     linkElement.click()
-    toast({ description: 'Schema exported successfully!' })
+    toast({ description: "Schema exported successfully!" })
   }
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -165,11 +184,11 @@ export function FormApp({ mode }: FormAppProps) {
       const parsed = JSON.parse(text)
 
       if (!Array.isArray(parsed)) {
-        throw new Error('Invalid schema: Root must be an array of pages')
+        throw new Error("Invalid schema: Root must be an array of pages")
       }
 
       if (parsed.length > 0 && !parsed[0].id) {
-        throw new Error('Invalid schema: Pages must have IDs')
+        throw new Error("Invalid schema: Pages must have IDs")
       }
 
       setPages(parsed as FormPage[])
@@ -180,38 +199,39 @@ export function FormApp({ mode }: FormAppProps) {
       setImportOpen(false)
       setSelectedFile(null)
       if (fileInputRef.current) {
-        fileInputRef.current.value = ''
+        fileInputRef.current.value = ""
       }
-      toast({ description: 'Schema imported successfully!' })
+      toast({ description: "Schema imported successfully!" })
     } catch (e) {
       toast({
-        title: 'Import Failed',
+        title: "Import Failed",
         description: (e as Error).message,
-        variant: 'destructive',
+        variant: "destructive",
       })
       setSelectedFile(null)
       if (fileInputRef.current) {
-        fileInputRef.current.value = ''
+        fileInputRef.current.value = ""
       }
     }
   }
 
   const handleSubmit = React.useCallback(
     (values: any) => {
-      
       // Flatten page-grouped values into a flat map for the viewer
       const flat: Record<string, any> = {}
-      if (values && typeof values === 'object') {
+      if (values && typeof values === "object") {
         for (const pageValues of Object.values(values)) {
-          if (pageValues && typeof pageValues === 'object') {
+          if (pageValues && typeof pageValues === "object") {
             Object.assign(flat, pageValues)
           }
         }
       }
       setSubmissionData(flat)
-      try { localStorage.setItem('shorms-submission-data', JSON.stringify(flat)) } catch {}
+      try {
+        localStorage.setItem("shorms-submission-data", JSON.stringify(flat))
+      } catch {}
       toast({
-        title: 'Form submitted — switching to Viewer',
+        title: "Form submitted — switching to Viewer",
         description: (
           <pre className="mt-2 w-[340px] overflow-auto rounded-md bg-slate-950 p-4">
             <code className="overflow-auto text-white">
@@ -229,7 +249,7 @@ export function FormApp({ mode }: FormAppProps) {
   const handleClear = () => {
     reset()
     setClearDialogOpen(false)
-    toast({ description: 'Form cleared successfully!' })
+    toast({ description: "Form cleared successfully!" })
   }
 
   return (
@@ -243,14 +263,16 @@ export function FormApp({ mode }: FormAppProps) {
                 <div className="flex aspect-square size-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
                   <Logo className="size-3.5" />
                 </div>
-                <div className="hidden sm:block text-left">
+                <div className="hidden text-left sm:block">
                   <div className="flex items-center gap-1.5">
                     <span className="text-sm font-semibold">Shorms</span>
                     <span className="text-[10px] font-medium text-emerald-500 drop-shadow-[0_0_3px_rgba(16,185,129,0.5)]">
                       v{VERSION}
                     </span>
                   </div>
-                  <span className="text-[11px] text-muted-foreground">Shadcn Form Builder</span>
+                  <span className="text-[11px] text-muted-foreground">
+                    Shadcn Form Builder
+                  </span>
                 </div>
                 <ChevronDown className="size-3.5 text-muted-foreground" />
               </Button>
@@ -258,29 +280,40 @@ export function FormApp({ mode }: FormAppProps) {
             <DropdownMenuContent align="start" className="w-56">
               <DropdownMenuItem asChild>
                 <Link href="/docs" className="flex items-start gap-2">
-                  <Book className="size-4 mt-0.5" />
+                  <Book className="mt-0.5 size-4" />
                   <div>
                     <div className="font-medium">Docs</div>
-                    <div className="text-xs text-muted-foreground">Library usage guide</div>
+                    <div className="text-xs text-muted-foreground">
+                      Library usage guide
+                    </div>
                   </div>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/changelog" className="flex items-start gap-2">
-                  <History className="size-4 mt-0.5" />
+                  <History className="mt-0.5 size-4" />
                   <div>
                     <div className="font-medium">Changelog</div>
-                    <div className="text-xs text-muted-foreground">Version history</div>
+                    <div className="text-xs text-muted-foreground">
+                      Version history
+                    </div>
                   </div>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <a href="https://github.com/jikkuatwork/shorms" target="_blank" rel="noopener noreferrer" className="flex items-start gap-2">
-                  <Github className="size-4 mt-0.5" />
+                <a
+                  href="https://github.com/jikkuatwork/shorms"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-start gap-2"
+                >
+                  <Github className="mt-0.5 size-4" />
                   <div>
                     <div className="font-medium">GitHub</div>
-                    <div className="text-xs text-muted-foreground">View source code</div>
+                    <div className="text-xs text-muted-foreground">
+                      View source code
+                    </div>
                   </div>
                 </a>
               </DropdownMenuItem>
@@ -295,7 +328,7 @@ export function FormApp({ mode }: FormAppProps) {
             {sizes.map((size) => (
               <Button
                 key={size.value}
-                variant={width === size.value ? 'secondary' : 'ghost'}
+                variant={width === size.value ? "secondary" : "ghost"}
                 size="sm"
                 onClick={() => setWidth(size.value)}
                 className="h-7 px-2.5 text-xs"
@@ -308,27 +341,27 @@ export function FormApp({ mode }: FormAppProps) {
           {/* Mode toggle */}
           <div className="flex items-center rounded-md border p-0.5">
             <Button
-              variant={mode === 'builder' ? 'secondary' : 'ghost'}
+              variant={mode === "builder" ? "secondary" : "ghost"}
               size="sm"
-              onClick={() => setMode('builder')}
+              onClick={() => setMode("builder")}
               className="h-7 gap-1.5 px-3 text-xs"
             >
               <Hammer className="size-3.5" />
               Builder
             </Button>
             <Button
-              variant={mode === 'renderer' ? 'secondary' : 'ghost'}
+              variant={mode === "renderer" ? "secondary" : "ghost"}
               size="sm"
-              onClick={() => setMode('renderer')}
+              onClick={() => setMode("renderer")}
               className="h-7 gap-1.5 px-3 text-xs"
             >
               <Play className="size-3.5" />
               Renderer
             </Button>
             <Button
-              variant={mode === 'viewer' ? 'secondary' : 'ghost'}
+              variant={mode === "viewer" ? "secondary" : "ghost"}
               size="sm"
-              onClick={() => setMode('viewer')}
+              onClick={() => setMode("viewer")}
               className="h-7 gap-1.5 px-3 text-xs"
             >
               <Eye className="size-3.5" />
@@ -351,14 +384,21 @@ export function FormApp({ mode }: FormAppProps) {
             </Button>
             <Dialog open={importOpen} onOpenChange={setImportOpen}>
               <DialogTrigger asChild>
-                <Button size="sm" variant="ghost" title="Import JSON" className="h-8 rounded-l-none px-2">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  title="Import JSON"
+                  className="h-8 rounded-l-none px-2"
+                >
                   <Upload className="size-3.5" />
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
                   <DialogTitle>Import Schema</DialogTitle>
-                  <DialogDescription>Select a JSON file to import.</DialogDescription>
+                  <DialogDescription>
+                    Select a JSON file to import.
+                  </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                   <Input
@@ -374,7 +414,12 @@ export function FormApp({ mode }: FormAppProps) {
 
           <Dialog open={clearDialogOpen} onOpenChange={setClearDialogOpen}>
             <DialogTrigger asChild>
-              <Button size="sm" variant="ghost" title="Clear Form" className="h-8 px-2">
+              <Button
+                size="sm"
+                variant="ghost"
+                title="Clear Form"
+                className="h-8 px-2"
+              >
                 <Trash2 className="size-3.5" />
               </Button>
             </DialogTrigger>
@@ -382,11 +427,15 @@ export function FormApp({ mode }: FormAppProps) {
               <DialogHeader>
                 <DialogTitle>Clear Form</DialogTitle>
                 <DialogDescription>
-                  Are you sure you want to clear the entire form? This action cannot be undone.
+                  Are you sure you want to clear the entire form? This action
+                  cannot be undone.
                 </DialogDescription>
               </DialogHeader>
               <div className="flex justify-end gap-2 pt-4">
-                <Button variant="outline" onClick={() => setClearDialogOpen(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setClearDialogOpen(false)}
+                >
                   Cancel
                 </Button>
                 <Button variant="destructive" onClick={handleClear}>
@@ -402,7 +451,7 @@ export function FormApp({ mode }: FormAppProps) {
       </header>
 
       <main className="flex min-h-0 flex-1 p-4 md:p-6">
-        {mode === 'builder' && (
+        {mode === "builder" && (
           <Builder
             pages={pages}
             activePageId={activePageId}
@@ -423,6 +472,11 @@ export function FormApp({ mode }: FormAppProps) {
               pageManagement: true,
               fieldSearch: true,
               commandPalette: true,
+              panelVisibility: {
+                statistics: false,
+                currentPage: false,
+                quickTips: false,
+              },
             }}
             renderCommandPalette={() => (
               <ControlledFieldCommandPalette
@@ -435,8 +489,10 @@ export function FormApp({ mode }: FormAppProps) {
             className="mx-auto h-full w-full overflow-hidden rounded-lg border bg-card shadow-sm"
           />
         )}
-        {mode === 'renderer' && (
-          <div className={`mx-auto h-full w-full overflow-hidden rounded-lg border bg-card shadow-sm ${widthClasses[width]}`}>
+        {mode === "renderer" && (
+          <div
+            className={`mx-auto h-full w-full overflow-hidden rounded-lg border bg-card shadow-sm ${widthClasses[width]}`}
+          >
             <ShadcnRenderer
               schema={schema}
               onSubmit={handleSubmit}
@@ -446,8 +502,10 @@ export function FormApp({ mode }: FormAppProps) {
             />
           </div>
         )}
-        {mode === 'viewer' && (
-          <div className={`mx-auto h-full w-full overflow-hidden rounded-lg border bg-card shadow-sm ${widthClasses[width]}`}>
+        {mode === "viewer" && (
+          <div
+            className={`mx-auto h-full w-full overflow-hidden rounded-lg border bg-card shadow-sm ${widthClasses[width]}`}
+          >
             <ShadcnViewer
               pages={pages}
               submissionData={submissionData ?? undefined}
@@ -455,7 +513,11 @@ export function FormApp({ mode }: FormAppProps) {
               showValidation={true}
               showFieldTypes={true}
               title={submissionData ? "Submission Viewer" : "Schema Viewer"}
-              description={submissionData ? "Submitted form data" : "Read-only view of form structure"}
+              description={
+                submissionData
+                  ? "Submitted form data"
+                  : "Read-only view of form structure"
+              }
             />
           </div>
         )}

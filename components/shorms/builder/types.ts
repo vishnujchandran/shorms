@@ -1,5 +1,6 @@
-import type { FormField } from '../../../types/field'
-import type { LucideIcon } from 'lucide-react'
+import type { LucideIcon } from "lucide-react"
+
+import type { FormField } from "../../../types/field"
 
 /**
  * Form page structure
@@ -30,6 +31,20 @@ export interface FieldTemplate {
   defaultConfig?: Partial<FormField>
 }
 
+export interface BuilderPanelVisibility {
+  statistics?: boolean
+  currentPage?: boolean
+  quickTips?: boolean
+}
+
+export interface BuilderFeatures {
+  dragDrop?: boolean // default: true
+  pageManagement?: boolean // default: true
+  fieldSearch?: boolean // default: true
+  commandPalette?: boolean // default: true
+  panelVisibility?: BuilderPanelVisibility
+}
+
 /**
  * Builder component props (controlled component)
  */
@@ -56,18 +71,13 @@ export interface BuilderProps {
   onFieldReorder?: (pageId: string, fields: FormField[]) => void
 
   // Optional: UI configuration
-  width?: 'sm' | 'md' | 'lg' | 'xl' | 'full' | number
+  width?: "sm" | "md" | "lg" | "xl" | "full" | number
   showFieldLibrary?: boolean // default: true for width >= 1024px
   showFormContext?: boolean // default: true for width >= 1536px
   fieldTemplates?: FieldTemplate[] // default: built-in fields
 
   // Optional: Feature flags
-  features?: {
-    dragDrop?: boolean // default: true
-    pageManagement?: boolean // default: true
-    fieldSearch?: boolean // default: true
-    commandPalette?: boolean // default: true
-  }
+  features?: BuilderFeatures
 
   // Optional: Custom renderers
   renderCommandPalette?: () => React.ReactNode
@@ -99,7 +109,7 @@ export interface FormContextProps {
   sections?: {
     statistics?: boolean
     currentPage?: boolean
-    tips?: boolean
+    quickTips?: boolean
   }
 }
 

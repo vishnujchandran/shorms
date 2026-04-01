@@ -9,6 +9,8 @@ export { useBuilderState } from './use-builder-state'
 
 // Types
 export type {
+  BuilderFeatures,
+  BuilderPanelVisibility,
   BuilderProps,
   BuilderState,
   FieldLibraryProps,

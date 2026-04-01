@@ -1,8 +1,7 @@
-'use client'
+"use client"
 
-import * as React from 'react'
+import * as React from "react"
 import {
-  closestCenter,
   DndContext,
   DragEndEvent,
   DragOverlay,
@@ -10,31 +9,33 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-} from '@dnd-kit/core'
+} from "@dnd-kit/core"
 import {
   arrayMove,
   SortableContext,
   verticalListSortingStrategy,
-} from '@dnd-kit/sortable'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Plus } from 'lucide-react'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+} from "@dnd-kit/sortable"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Plus } from "lucide-react"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
 
-import { Field } from '../../field'
-import { SortableField } from '../../sortable-field'
-import { Button } from '../../ui/button'
-import { Form } from '../../ui/form'
-import { generateDefaultValues, generateZodSchema } from '../../../lib/form-schema'
-import { generateFieldId, generateFieldName, cn } from '../../../lib/utils'
-import { toast } from '../../../hooks/use-toast'
-import type { FormField } from '../../../types/field'
-
-import { defaultFieldTemplates, widthClasses } from './constants'
-import { FieldLibrary } from './field-library'
-import { FormContext } from './form-context'
-import { PageTabs } from './page-tabs'
-import type { BuilderProps, FieldTemplate } from './types'
+import { toast } from "../../../hooks/use-toast"
+import {
+  generateDefaultValues,
+  generateZodSchema,
+} from "../../../lib/form-schema"
+import { cn, generateFieldId, generateFieldName } from "../../../lib/utils"
+import type { FormField } from "../../../types/field"
+import { Field } from "../../field"
+import { SortableField } from "../../sortable-field"
+import { Button } from "../../ui/button"
+import { Form } from "../../ui/form"
+import { defaultFieldTemplates, widthClasses } from "./constants"
+import { FieldLibrary } from "./field-library"
+import { FormContext } from "./form-context"
+import { PageTabs } from "./page-tabs"
+import type { BuilderProps, FieldTemplate } from "./types"
 
 /**
  * Main Builder component (controlled)
@@ -43,18 +44,18 @@ import type { BuilderProps, FieldTemplate } from './types'
 export function Builder({
   pages,
   activePageId,
-  onPagesChange,
+  onPagesChange: __unusedOnPagesChange,
   onActivePageChange,
   onPageAdd,
   onPageDelete,
   onPageRename,
   onPageReorder,
   onFieldAdd,
-  onFieldUpdate,
+  onFieldUpdate: __unusedOnFieldUpdate,
   onFieldDelete,
   onFieldEdit,
   onFieldReorder,
-  width = 'lg',
+  width = "lg",
   showFieldLibrary,
   showFormContext,
   fieldTemplates = defaultFieldTemplates,
@@ -67,25 +68,45 @@ export function Builder({
   renderCommandPalette,
   className,
 }: BuilderProps) {
+  void __unusedOnPagesChange
+  void __unusedOnFieldUpdate
+
   const [isMounted, setIsMounted] = React.useState(false)
   const [activeFormField, setActiveFormField] =
     React.useState<FormField | null>(null)
 
-  const widthClass = typeof width === 'string' ? widthClasses[width] : ''
-  const widthStyle = typeof width === 'number' ? { maxWidth: `${width}px` } : {}
+  const widthClass = typeof width === "string" ? widthClasses[width] : ""
+  const widthStyle = typeof width === "number" ? { maxWidth: `${width}px` } : {}
 
   // Sidebar visibility based on width setting
   const leftSidebarVisible = React.useMemo(() => {
     if (showFieldLibrary !== undefined) return showFieldLibrary
-    if (typeof width === 'number') return width >= 1024
-    return width === 'lg' || width === 'xl' || width === 'full'
+    if (typeof width === "number") return width >= 1024
+    return width === "lg" || width === "xl" || width === "full"
   }, [width, showFieldLibrary])
 
   const rightSidebarVisible = React.useMemo(() => {
     if (showFormContext !== undefined) return showFormContext
-    if (typeof width === 'number') return width >= 1536
-    return width === 'full'
+    if (typeof width === "number") return width >= 1536
+    return width === "full"
   }, [width, showFormContext])
+
+  const panelVisibility = React.useMemo(
+    () => ({
+      statistics: features.panelVisibility?.statistics ?? true,
+      currentPage: features.panelVisibility?.currentPage ?? true,
+      quickTips: features.panelVisibility?.quickTips ?? true,
+    }),
+    [features.panelVisibility]
+  )
+
+  const showSidebarHelpers = React.useMemo(
+    () =>
+      panelVisibility.statistics ||
+      panelVisibility.currentPage ||
+      panelVisibility.quickTips,
+    [panelVisibility]
+  )
 
   React.useEffect(() => {
     setIsMounted(true)
@@ -122,7 +143,7 @@ export function Builder({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues,
-    mode: 'onChange',
+    mode: "onChange",
   })
 
   React.useEffect(() => {
@@ -131,7 +152,7 @@ export function Builder({
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     toast({
-      title: 'You submitted the following values:',
+      title: "You submitted the following values:",
       description: (
         <pre className="mt-2 w-[340px] overflow-auto rounded-md bg-slate-950 p-4">
           <code className="overflow-auto text-white">
@@ -171,7 +192,7 @@ export function Builder({
   // Handle field template selection from library
   const handleFieldSelect = (template: FieldTemplate) => {
     if (!onFieldAdd) {
-      console.warn('onFieldAdd callback not provided')
+      console.warn("onFieldAdd callback not provided")
       return
     }
 
@@ -190,7 +211,7 @@ export function Builder({
 
   return (
     <div
-      className={cn('flex h-full', widthClass, className)}
+      className={cn("flex h-full", widthClass, className)}
       style={widthStyle}
     >
       {/* Left Sidebar - Field Library */}
@@ -224,7 +245,11 @@ export function Builder({
         {/* Field List */}
         <div className="flex-1 overflow-y-auto">
           {isMounted && features.dragDrop ? (
-            <DndContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
+            <DndContext
+              sensors={sensors}
+              onDragEnd={handleDragEnd}
+              onDragStart={handleDragStart}
+            >
               {currentFields.length !== 0 ? (
                 <Form {...form}>
                   <form
@@ -268,7 +293,12 @@ export function Builder({
                 className="mx-auto flex w-full max-w-2xl flex-col gap-5 px-4 py-8 md:gap-6 md:px-8 md:py-10"
               >
                 {currentFields.map((formField) => (
-                  <Field formField={formField} key={formField.name} onDelete={onFieldDelete} onEdit={onFieldEdit} />
+                  <Field
+                    formField={formField}
+                    key={formField.name}
+                    onDelete={onFieldDelete}
+                    onEdit={onFieldEdit}
+                  />
                 ))}
                 <Button type="submit" size="lg" className="mt-2">
                   Submit Form
@@ -283,8 +313,12 @@ export function Builder({
       {/* End Main Content Area */}
 
       {/* Right Sidebar - Form Context */}
-      {rightSidebarVisible && (
-        <FormContext pages={pages} activePageId={activePageId} />
+      {rightSidebarVisible && showSidebarHelpers && (
+        <FormContext
+          pages={pages}
+          activePageId={activePageId}
+          sections={panelVisibility}
+        />
       )}
     </div>
   )
@@ -298,12 +332,14 @@ function EmptyState() {
           <Plus className="h-10 w-10 text-primary" />
         </div>
         <div className="space-y-2">
-          <h3 className="text-xl font-semibold tracking-tight">No fields yet</h3>
+          <h3 className="text-xl font-semibold tracking-tight">
+            No fields yet
+          </h3>
           <p className="max-w-md text-sm text-muted-foreground">
-            Press{' '}
+            Press{" "}
             <kbd className="rounded border bg-muted px-1.5 py-0.5 text-xs font-semibold">
               ⌘K
-            </kbd>{' '}
+            </kbd>{" "}
             to add fields to your form
           </p>
         </div>
