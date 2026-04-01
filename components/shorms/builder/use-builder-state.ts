@@ -46,10 +46,10 @@ function hydratePages(pages: FormPage[]): FormPage[] {
 }
 
 // Load pages from localStorage
-function loadFromStorage(): FormPage[] | null {
+function loadFromStorage(storageKey: string): FormPage[] | null {
   if (typeof window === 'undefined') return null
   try {
-    const stored = localStorage.getItem(STORAGE_KEY)
+    const stored = localStorage.getItem(storageKey)
     if (stored) {
       const parsed = JSON.parse(stored)
       return hydratePages(parsed)
@@ -61,15 +61,19 @@ function loadFromStorage(): FormPage[] | null {
 }
 
 // Save pages to localStorage (strips non-serializable Icon)
-function saveToStorage(pages: FormPage[]) {
+function saveToStorage(storageKey: string, pages: FormPage[]) {
   if (typeof window === 'undefined') return
   try {
     // Strip Icon from fields before saving
     const toSave = pages.map(page => ({
       ...page,
-      fields: page.fields.map(({ Icon, ...field }) => field),
+      fields: page.fields.map((field) => {
+        const clonedField: Record<string, unknown> = { ...field }
+        delete clonedField.Icon
+        return clonedField as unknown as typeof field
+      }),
     }))
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave))
+    localStorage.setItem(storageKey, JSON.stringify(toSave))
   } catch (e) {
     console.warn('Failed to save to localStorage:', e)
   }
@@ -78,12 +82,21 @@ function saveToStorage(pages: FormPage[]) {
 /**
  * Hook for managing Builder state
  * Provides a convenient way to manage form pages and fields without Zustand
- * Automatically persists to localStorage
+ * Automatically persists to localStorage when enabled
  *
  * @param initialPages - Optional initial pages (defaults to single empty page)
+ * @param options - Optional state persistence configuration
  * @returns Builder state and operations
  */
-export function useBuilderState(initialPages?: FormPage[]) {
+export function useBuilderState(
+  initialPages?: FormPage[],
+  options?: {
+    persist?: boolean
+    storageKey?: string
+  }
+) {
+  const persist = options?.persist ?? false
+  const storageKey = options?.storageKey ?? STORAGE_KEY
   const [isHydrated, setIsHydrated] = useState(false)
   const [pages, setPages] = useState<FormPage[]>(
     initialPages || [
@@ -99,20 +112,22 @@ export function useBuilderState(initialPages?: FormPage[]) {
 
   // Load from localStorage after hydration to avoid mismatch
   useEffect(() => {
-    const stored = loadFromStorage()
-    if (stored && stored.length > 0) {
-      setPages(stored)
-      setActivePageId(stored[0].id)
+    if (persist) {
+      const stored = loadFromStorage(storageKey)
+      if (stored && stored.length > 0) {
+        setPages(stored)
+        setActivePageId(stored[0].id)
+      }
     }
     setIsHydrated(true)
-  }, [])
+  }, [persist, storageKey])
 
   // Persist to localStorage whenever pages change (only after hydration)
   useEffect(() => {
-    if (isHydrated) {
-      saveToStorage(pages)
+    if (persist && isHydrated) {
+      saveToStorage(storageKey, pages)
     }
-  }, [pages, isHydrated])
+  }, [pages, isHydrated, persist, storageKey])
 
   // ===== Page Operations =====
 

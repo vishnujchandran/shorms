@@ -36,7 +36,17 @@ export function EditFormField({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange} modal={false}>
-      <SheetContent withOverlay={false} className="sm:max-w-[614px] p-0">
+      <SheetContent
+        withOverlay={false}
+        className="sm:max-w-[614px] p-0"
+        onInteractOutside={(event) => {
+          const target = event.target as HTMLElement | null
+
+          if (target?.closest('[data-slot="popover-content"]')) {
+            event.preventDefault()
+          }
+        }}
+      >
         <SheetHeader className="p-6 pb-0">
           <SheetTitle>Edit {selectedField.name} Field</SheetTitle>
           <SheetDescription>Update info about this field.</SheetDescription>

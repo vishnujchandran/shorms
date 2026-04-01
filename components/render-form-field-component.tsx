@@ -3,6 +3,8 @@ import { CalendarIcon, CheckIcon, ChevronsUpDownIcon } from "lucide-react"
 import type { ControllerRenderProps } from "react-hook-form"
 
 import { cn } from "../lib/utils"
+import { FieldType, type FormField as FormFieldType } from "../types/field"
+import { FormFieldWrapper } from "./form-field-wrapper"
 import { Button } from "./ui/button"
 import { Calendar } from "./ui/calendar"
 import { Checkbox } from "./ui/checkbox"
@@ -22,11 +24,7 @@ import {
   FormMessage,
 } from "./ui/form"
 import { Input } from "./ui/input"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "./ui/popover"
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group"
 import {
   Select,
@@ -38,9 +36,6 @@ import {
 import { Slider } from "./ui/slider"
 import { Switch } from "./ui/switch"
 import { Textarea } from "./ui/textarea"
-import { FormFieldWrapper } from "./form-field-wrapper"
-
-import { FieldType, type FormField as FormFieldType } from "../types/field"
 
 interface RenderFormFieldComponentProps {
   formField: FormFieldType
@@ -56,22 +51,24 @@ export function renderFormFieldComponent({
   formField,
   field,
 }: RenderFormFieldComponentProps) {
+  const isRequired = Boolean(formField.validation?.required)
+
   // Ensure field value is never undefined to prevent controlled/uncontrolled warnings
   const safeField = {
     ...field,
-    value: field.value ?? ""
+    value: field.value ?? "",
   }
 
   switch (formField.type) {
     case FieldType.INPUT:
       return (
-        <FormFieldWrapper {...formField}>
+        <FormFieldWrapper {...formField} required={isRequired}>
           <Input placeholder={formField.placeholder} {...safeField} />
         </FormFieldWrapper>
       )
     case FieldType.TEXTAREA:
       return (
-        <FormFieldWrapper {...formField}>
+        <FormFieldWrapper {...formField} required={isRequired}>
           <Textarea
             placeholder={formField.placeholder}
             className="resize-none"
@@ -81,13 +78,17 @@ export function renderFormFieldComponent({
       )
     case FieldType.NUMBER_INPUT:
       return (
-        <FormFieldWrapper {...formField}>
-          <Input placeholder={formField.placeholder} {...safeField} type="number" />
+        <FormFieldWrapper {...formField} required={isRequired}>
+          <Input
+            placeholder={formField.placeholder}
+            {...safeField}
+            type="number"
+          />
         </FormFieldWrapper>
       )
     case FieldType.EMAIL:
       return (
-        <FormFieldWrapper {...formField}>
+        <FormFieldWrapper {...formField} required={isRequired}>
           <Input placeholder={formField.placeholder} {...safeField} />
         </FormFieldWrapper>
       )
@@ -98,7 +99,10 @@ export function renderFormFieldComponent({
             <Checkbox checked={field.value} onCheckedChange={field.onChange} />
           </FormControl>
           <div className="space-y-1 leading-none">
-            <FormLabel>{formField.label}</FormLabel>
+            <FormLabel>
+              {formField.label}
+              {isRequired && <span className="ml-1 text-destructive">*</span>}
+            </FormLabel>
             <FormDescription>{formField.description}</FormDescription>
           </div>
         </FormItem>
@@ -106,7 +110,10 @@ export function renderFormFieldComponent({
     case FieldType.SELECT:
       return (
         <FormItem>
-          <FormLabel>{formField.label}</FormLabel>
+          <FormLabel>
+            {formField.label}
+            {isRequired && <span className="ml-1 text-destructive">*</span>}
+          </FormLabel>
           <Select
             onValueChange={field.onChange}
             value={field.value}
@@ -135,7 +142,10 @@ export function renderFormFieldComponent({
     case FieldType.DATE:
       return (
         <FormItem className="flex flex-col">
-          <FormLabel>{formField.label}</FormLabel>
+          <FormLabel>
+            {formField.label}
+            {isRequired && <span className="ml-1 text-destructive">*</span>}
+          </FormLabel>
           <Popover>
             <PopoverTrigger asChild>
               <FormControl>
@@ -170,7 +180,10 @@ export function renderFormFieldComponent({
     case FieldType.RADIO_GROUP:
       return (
         <FormItem className="space-y-3">
-          <FormLabel>{formField.label}</FormLabel>
+          <FormLabel>
+            {formField.label}
+            {isRequired && <span className="ml-1 text-destructive">*</span>}
+          </FormLabel>
           <FormControl>
             <RadioGroup
               onValueChange={field.onChange}
@@ -197,7 +210,10 @@ export function renderFormFieldComponent({
       return (
         <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
           <div className="space-y-0.5">
-            <FormLabel className="text-base">{formField.label}</FormLabel>
+            <FormLabel className="text-base">
+              {formField.label}
+              {isRequired && <span className="ml-1 text-destructive">*</span>}
+            </FormLabel>
             <FormDescription>{formField.description}</FormDescription>
           </div>
           <FormControl>
@@ -208,7 +224,10 @@ export function renderFormFieldComponent({
     case FieldType.COMBOBOX:
       return (
         <FormItem className="flex flex-col">
-          <FormLabel>{formField.label}</FormLabel>
+          <FormLabel>
+            {formField.label}
+            {isRequired && <span className="ml-1 text-destructive">*</span>}
+          </FormLabel>
           <Popover>
             <PopoverTrigger asChild>
               <FormControl>
@@ -264,7 +283,10 @@ export function renderFormFieldComponent({
     case FieldType.SLIDER:
       return (
         <FormItem>
-          <FormLabel>{formField.label}</FormLabel>
+          <FormLabel>
+            {formField.label}
+            {isRequired && <span className="ml-1 text-destructive">*</span>}
+          </FormLabel>
           <FormControl>
             <Slider
               min={formField.min}
@@ -288,7 +310,10 @@ export function renderFormFieldComponent({
     case FieldType.FILE_UPLOAD:
       return (
         <FormItem>
-          <FormLabel>{formField.label}</FormLabel>
+          <FormLabel>
+            {formField.label}
+            {isRequired && <span className="ml-1 text-destructive">*</span>}
+          </FormLabel>
           <FormControl>
             <Input
               type="file"

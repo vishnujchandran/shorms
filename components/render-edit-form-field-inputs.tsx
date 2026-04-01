@@ -20,6 +20,8 @@ import {
 } from "./ui/select"
 import { Switch } from "./ui/switch"
 
+const DEFAULT_DECK_FILE_TYPES = ".pdf,.ppt,.pptx,.key"
+
 interface RenderEditFormFieldInputsProps {
   selectedField: FormField
   onUpdate: (field: FormField) => void
@@ -153,13 +155,14 @@ export const RenderEditFormFieldInputs = ({
             <Label htmlFor="default">Default</Label>
             <Input
               id="default"
-              value={selectedField.default as string}
+              value={typeof selectedField.default === "number" ? selectedField.default : ""}
               type="number"
               placeholder="input your default value here"
               onChange={(e) =>
                 onUpdate({
                   ...selectedField,
-                  default: parseFloat(e.target.value),
+                  default:
+                    e.target.value === "" ? undefined : parseFloat(e.target.value),
                 })
               }
             />
@@ -171,6 +174,22 @@ export const RenderEditFormFieldInputs = ({
     case FieldType.COMBOBOX:
       return (
         <>
+          {(selectedField.type === FieldType.SELECT ||
+            selectedField.type === FieldType.COMBOBOX) && (
+            <div>
+              <Label htmlFor="placeholder">Placeholder</Label>
+              <Input
+                id="placeholder"
+                value={selectedField.placeholder || ""}
+                onChange={(e) =>
+                  onUpdate({
+                    ...selectedField,
+                    placeholder: e.target.value,
+                  })
+                }
+              />
+            </div>
+          )}
           <ScrollArea>
             <div className="max-h-96 space-y-2">
               <Label>Possible values</Label>
@@ -335,13 +354,14 @@ export const RenderEditFormFieldInputs = ({
             <Label htmlFor="default">Default</Label>
             <Input
               id="default"
-              value={selectedField.default as string}
+              value={typeof selectedField.default === "number" ? selectedField.default : ""}
               type="number"
               placeholder="input your default value here"
               onChange={(e) =>
                 onUpdate({
                   ...selectedField,
-                  default: parseFloat(e.target.value),
+                  default:
+                    e.target.value === "" ? undefined : parseFloat(e.target.value),
                 })
               }
             />
@@ -355,7 +375,7 @@ export const RenderEditFormFieldInputs = ({
             <Label htmlFor="accept">Accepted file types</Label>
             <Input
               id="accept"
-              placeholder="e.g. .pdf,.docx,image/*"
+              placeholder={DEFAULT_DECK_FILE_TYPES}
               value={selectedField.accept ?? ""}
               onChange={(e) =>
                 onUpdate({
@@ -364,9 +384,36 @@ export const RenderEditFormFieldInputs = ({
                 })
               }
             />
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() =>
+                  onUpdate({
+                    ...selectedField,
+                    accept: DEFAULT_DECK_FILE_TYPES,
+                  })
+                }
+              >
+                Use deck file types
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                onClick={() =>
+                  onUpdate({
+                    ...selectedField,
+                    accept: undefined,
+                  })
+                }
+              >
+                Clear
+              </Button>
+            </div>
             <p className="text-xs text-muted-foreground">
-              Comma-separated list (MIME types or extensions). Leave blank to
-              allow all.
+              Example: {DEFAULT_DECK_FILE_TYPES}
             </p>
           </div>
 
