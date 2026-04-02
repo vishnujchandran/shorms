@@ -79,13 +79,72 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
   const showNext = totalPages > 1 && !isLastPage
   const showSubmit = totalPages === 1 || isLastPage
 
+  // Debug navigation visibility (helps diagnose non-clickable submit button)
+  useEffect(() => {
+    console.info("[shorms] nav visibility", {
+      showSubmit,
+      showNext,
+      showPrevious,
+      isLastPage,
+      currentPageIndex,
+      totalPages,
+      hasPages,
+    })
+  }, [
+    showSubmit,
+    showNext,
+    showPrevious,
+    isLastPage,
+    currentPageIndex,
+    totalPages,
+    hasPages,
+  ])
+
   // Ref for form element to allow external submit
   const formElementRef = useRef<HTMLFormElement>(null)
+  const submitButtonRef = useRef<HTMLButtonElement | null>(null)
   const onSubmitRef = useRef(onSubmit)
 
   useEffect(() => {
     onSubmitRef.current = onSubmit
   }, [onSubmit])
+
+  // Debug submit button computed styles to detect pointer-events/opacity/layout issues
+  useEffect(() => {
+    const btn = submitButtonRef.current
+    if (!btn) return
+
+    // Defer to ensure layout is measured after render
+    const id = requestAnimationFrame(() => {
+      const styles = getComputedStyle(btn)
+      const rect = btn.getBoundingClientRect()
+
+      console.info("[shorms] submit button diagnostics", {
+        disabled: btn.disabled,
+        ariaDisabled: btn.getAttribute("aria-disabled"),
+        pointerEvents: styles.pointerEvents,
+        opacity: styles.opacity,
+        display: styles.display,
+        visibility: styles.visibility,
+        rect: {
+          width: rect.width,
+          height: rect.height,
+          top: rect.top,
+          left: rect.left,
+        },
+        isConnected: btn.isConnected,
+      })
+    })
+
+    return () => cancelAnimationFrame(id)
+  }, [
+    showSubmit,
+    showNext,
+    showPrevious,
+    isLastPage,
+    currentPageIndex,
+    totalPages,
+  ])
 
   // Initialize form state
   const formState = useFormState({
@@ -366,18 +425,12 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
         console.error("Form submission error:", error)
       }
     },
-    [
-      formState,
-      validation,
-      currentPageIndex,
-      totalPages,
-      schema.pages,
-    ]
+    [formState, validation, currentPageIndex, totalPages, schema.pages]
   )
 
   // Expose form state, navigation, and submit API via ref
   useImperativeHandle(
-    formStateRef || ref,
+    ref,
     () => ({
       ...formState,
       navigation: {
@@ -390,6 +443,47 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
         isLastPage,
       },
       submit: () => {
+        console.info("[shorms] imperative submit called", {
+          currentPageIndex,
+          totalPages,
+          isLastPage,
+          hasFormElement: !!formElementRef.current,
+        })
+        formElementRef.current?.requestSubmit()
+      },
+    }),
+    [
+      formState,
+      currentPageIndex,
+      totalPages,
+      handlePrevPage,
+      handleNextPage,
+      showPrevious,
+      showNext,
+      isLastPage,
+    ]
+  )
+
+  useImperativeHandle(
+    formStateRef,
+    () => ({
+      ...formState,
+      navigation: {
+        currentPageIndex,
+        totalPages,
+        onPrevious: handlePrevPage,
+        onNext: handleNextPage,
+        canGoPrevious: showPrevious,
+        canGoNext: showNext,
+        isLastPage,
+      },
+      submit: () => {
+        console.info("[shorms] formStateRef submit called", {
+          currentPageIndex,
+          totalPages,
+          isLastPage,
+          hasFormElement: !!formElementRef.current,
+        })
         formElementRef.current?.requestSubmit()
       },
     }),
@@ -605,6 +699,7 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
       <form
         ref={formElementRef}
         onSubmit={handleSubmit}
+        noValidate
         className="flex flex-1 flex-col px-6"
       >
         <div className="flex-1">
@@ -654,6 +749,14 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
               {showSubmit && (
                 <button
                   type="submit"
+                  ref={submitButtonRef}
+                  onClick={() =>
+                    console.info("[shorms] submit button clicked (onClick)", {
+                      isLastPage,
+                      currentPageIndex,
+                      totalPages,
+                    })
+                  }
                   className="rounded-md bg-green-500 px-4 py-2 text-white hover:bg-green-600"
                 >
                   Submit

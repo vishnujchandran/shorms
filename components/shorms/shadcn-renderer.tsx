@@ -539,7 +539,32 @@ export function ShadcnRenderer({
   // Handle submit from external toolbar
   const handleToolbarSubmit = React.useCallback(() => {
     if (hasActiveUploads) return
-    rendererRef.current?.submit()
+    const formApi = rendererRef.current
+    const nav = formApi?.navigation
+
+    console.info('[shorms.shadcn] toolbar submit clicked', {
+      hasFormApi: !!formApi,
+      currentPageIndex: nav?.currentPageIndex,
+      totalPages: nav?.totalPages,
+      isLastPage: nav?.isLastPage,
+    })
+
+    // Root cause hypothesis 1: stale imperative nav state in the ref.
+    // Root cause hypothesis 2: requestSubmit path is being swallowed by custom toolbar flow.
+    // Validate by forcing last-page submit from live toolbar state.
+    if (formApi && nav && !nav.isLastPage && nav.currentPageIndex >= nav.totalPages - 1) {
+      console.warn('[shorms.shadcn] correcting stale nav state before submit', {
+        currentPageIndex: nav.currentPageIndex,
+        totalPages: nav.totalPages,
+      })
+      formApi.navigation = {
+        ...nav,
+        isLastPage: true,
+        canGoNext: false,
+      }
+    }
+
+    formApi?.submit()
   }, [hasActiveUploads])
 
   // Read navigation state directly from ref (kept fresh by renderNavigation)
