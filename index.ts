@@ -62,6 +62,7 @@ export {
 export { ShadcnBuilder as Builder } from './components/shorms/shadcn-builder'
 export { ShadcnRenderer as Renderer } from './components/shorms/shadcn-renderer'
 export { ShadcnViewer as Viewer } from './components/shorms/shadcn-viewer'
+export type { ShadcnRendererProps as RendererComponentProps } from './components/shorms/shadcn-renderer'
 
 // ============================================================================
 // Builder Utilities

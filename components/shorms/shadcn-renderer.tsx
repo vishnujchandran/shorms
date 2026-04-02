@@ -13,6 +13,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronsUpDownIcon,
+  Loader2,
 } from "lucide-react"
 
 import { cn } from "../../lib/utils"
@@ -69,23 +70,31 @@ const normalizeFieldType = (type?: string): string => {
   }
 }
 
-interface ShadcnRendererProps
+export interface ShadcnRendererProps
   extends Omit<RendererProps, "renderField" | "renderPage" | "renderProgress"> {
   className?: string
   title?: string
   description?: string
+  onFileUpload?: RendererProps["onFileUpload"]
 }
 
 export function ShadcnRenderer({
   className,
   title,
   description,
+  onFileUpload,
   ...props
 }: ShadcnRendererProps) {
   const rendererRef = React.useRef<any>(null)
   const navPropsRef = React.useRef<NavigationProps | null>(null)
   const mountedRef = React.useRef(false)
   const [, forceUpdate] = React.useReducer((x: number) => x + 1, 0)
+  const [uploadingFields, setUploadingFields] = React.useState<Record<string, boolean>>({})
+  const [uploadErrors, setUploadErrors] = React.useState<Record<string, string | null>>({})
+  const hasActiveUploads = React.useMemo(
+    () => Object.values(uploadingFields).some(Boolean),
+    [uploadingFields]
+  )
 
   React.useEffect(() => {
     mountedRef.current = true
@@ -388,26 +397,69 @@ export function ShadcnRenderer({
           )
 
         case "file": {
-          // Support multiple files and accept filter when provided in schema
           const fileField = field as any
+          const isUploading = uploadingFields[field.name]
+          const uploadError = uploadErrors[field.name]
+          const hasValue = Array.isArray(value) ? value.length > 0 : Boolean(value)
           return (
-            <Input
-              id={field.name}
-              name={field.name}
-              type="file"
-              accept={fileField.accept}
-              multiple={fileField.multiple}
-              onChange={(e) => {
-                const files = e.target.files
-                if (!files) return
-                if (fileField.multiple) {
-                  onChange(files)
-                } else {
-                  onChange(files[0] ?? null)
-                }
-              }}
-              required={field.required}
-            />
+            <div className="space-y-2">
+              <Input
+                id={field.name}
+                name={field.name}
+                type="file"
+                accept={fileField.accept}
+                multiple={fileField.multiple}
+                disabled={isUploading}
+                onChange={async (e) => {
+                  const files = e.target.files
+                  if (!files) return
+
+                  if (!onFileUpload) {
+                    if (fileField.multiple) {
+                      onChange(files)
+                    } else {
+                      onChange(files[0] ?? null)
+                    }
+                    return
+                  }
+
+                  setUploadingFields((prev) => ({ ...prev, [field.name]: true }))
+                  setUploadErrors((prev) => ({ ...prev, [field.name]: null }))
+
+                  try {
+                    const uploaded = await Promise.all(
+                      Array.from(files).map((file) => onFileUpload(file, field))
+                    )
+
+                    onChange(fileField.multiple ? uploaded : uploaded[0] ?? null)
+                  } catch (error) {
+                    const message =
+                      error instanceof Error ? error.message : "Failed to upload file"
+                    setUploadErrors((prev) => ({ ...prev, [field.name]: message }))
+                  } finally {
+                    setUploadingFields((prev) => ({ ...prev, [field.name]: false }))
+                    e.target.value = ""
+                  }
+                }}
+                required={field.required && !hasValue}
+              />
+              {isUploading && (
+                <p className="text-sm text-muted-foreground flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Uploading file... Please wait before submitting.
+                </p>
+              )}
+              {uploadError && <p className="text-sm text-destructive">{uploadError}</p>}
+              {value && (
+                <div className="text-sm text-muted-foreground space-y-1">
+                  {Array.isArray(value)
+                    ? value.map((file: any, index: number) => (
+                        <div key={`${file.url}-${index}`}>{file.name || file.url}</div>
+                      ))
+                    : value.url && <div>{value.name || value.url}</div>}
+                </div>
+              )}
+            </div>
           )
         }
 
@@ -433,7 +485,7 @@ export function ShadcnRenderer({
           )
       }
     },
-    []
+    [onFileUpload, uploadErrors, uploadingFields]
   )
 
   // Custom page renderer - memoized to prevent unnecessary re-renders
@@ -486,8 +538,9 @@ export function ShadcnRenderer({
 
   // Handle submit from external toolbar
   const handleToolbarSubmit = React.useCallback(() => {
+    if (hasActiveUploads) return
     rendererRef.current?.submit()
-  }, [])
+  }, [hasActiveUploads])
 
   // Read navigation state directly from ref (kept fresh by renderNavigation)
   const nav = navPropsRef.current
@@ -533,6 +586,12 @@ export function ShadcnRenderer({
       {/* Fixed toolbar at bottom */}
       {totalPages > 0 && (
         <div className="shrink-0 border-t bg-background px-6 py-4">
+          {hasActiveUploads && (
+            <div className="text-sm text-muted-foreground mb-3 flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Files are still uploading. Submit will be enabled once upload is complete.
+            </div>
+          )}
           <div className="flex items-center gap-4">
             {/* Left: Previous button - only show on multi-page forms, not first page */}
             {showPrevious && (
@@ -540,7 +599,7 @@ export function ShadcnRenderer({
                 type="button"
                 variant="outline"
                 onClick={nav?.onPrevious}
-                disabled={!nav}
+                disabled={!nav || hasActiveUploads}
                 className="w-32"
               >
                 <ChevronLeft className="mr-2 h-4 w-4" />
@@ -558,12 +617,12 @@ export function ShadcnRenderer({
 
             {/* Right: Next button - only show on multi-page forms, not on last page */}
             {showNext && (
-              <Button
-                type="button"
-                onClick={nav?.onNext}
-                disabled={!nav}
-                className="w-32"
-              >
+                <Button
+                  type="button"
+                  onClick={nav?.onNext}
+                  disabled={!nav || hasActiveUploads}
+                  className="w-32"
+                >
                 Next
                 <ChevronRight className="ml-2 h-4 w-4" />
               </Button>
@@ -574,10 +633,20 @@ export function ShadcnRenderer({
               <Button
                 type="button"
                 onClick={handleToolbarSubmit}
+                disabled={hasActiveUploads}
                 className="w-32"
               >
-                Submit
-                <ChevronRight className="ml-2 h-4 w-4" />
+                {hasActiveUploads ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    Submit
+                    <ChevronRight className="ml-2 h-4 w-4" />
+                  </>
+                )}
               </Button>
             )}
           </div>

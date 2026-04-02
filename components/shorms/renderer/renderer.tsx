@@ -79,9 +79,6 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
   const showNext = totalPages > 1 && !isLastPage
   const showSubmit = totalPages === 1 || isLastPage
 
-  // Ref to prevent submission immediately after navigation
-  const justNavigatedRef = useRef(false)
-
   // Ref for form element to allow external submit
   const formElementRef = useRef<HTMLFormElement>(null)
 
@@ -231,14 +228,8 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
 
     // Navigate to next page
     if (currentPageIndex < totalPages - 1) {
-      // Set flag to prevent immediate submission when landing on last page
-      justNavigatedRef.current = true
       setCurrentPageIndex((prev) => prev + 1)
       window.scrollTo(0, 0)
-      // Clear the flag after a short delay
-      setTimeout(() => {
-        justNavigatedRef.current = false
-      }, 100)
     }
   }, [
     currentPageIndex,
@@ -264,11 +255,6 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault()
-
-      // Prevent submission if we just navigated to this page
-      if (justNavigatedRef.current) {
-        return
-      }
 
       // Only allow submission on the last page (or single-page forms)
       if (!isLastPage) {
