@@ -89,8 +89,12 @@ export function ShadcnRenderer({
   const navPropsRef = React.useRef<NavigationProps | null>(null)
   const mountedRef = React.useRef(false)
   const [, forceUpdate] = React.useReducer((x: number) => x + 1, 0)
-  const [uploadingFields, setUploadingFields] = React.useState<Record<string, boolean>>({})
-  const [uploadErrors, setUploadErrors] = React.useState<Record<string, string | null>>({})
+  const [uploadingFields, setUploadingFields] = React.useState<
+    Record<string, boolean>
+  >({})
+  const [uploadErrors, setUploadErrors] = React.useState<
+    Record<string, string | null>
+  >({})
   const hasActiveUploads = React.useMemo(
     () => Object.values(uploadingFields).some(Boolean),
     [uploadingFields]
@@ -400,7 +404,9 @@ export function ShadcnRenderer({
           const fileField = field as any
           const isUploading = uploadingFields[field.name]
           const uploadError = uploadErrors[field.name]
-          const hasValue = Array.isArray(value) ? value.length > 0 : Boolean(value)
+          const hasValue = Array.isArray(value)
+            ? value.length > 0
+            : Boolean(value)
           return (
             <div className="space-y-2">
               <Input
@@ -423,7 +429,10 @@ export function ShadcnRenderer({
                     return
                   }
 
-                  setUploadingFields((prev) => ({ ...prev, [field.name]: true }))
+                  setUploadingFields((prev) => ({
+                    ...prev,
+                    [field.name]: true,
+                  }))
                   setUploadErrors((prev) => ({ ...prev, [field.name]: null }))
 
                   try {
@@ -431,30 +440,44 @@ export function ShadcnRenderer({
                       Array.from(files).map((file) => onFileUpload(file, field))
                     )
 
-                    onChange(fileField.multiple ? uploaded : uploaded[0] ?? null)
+                    onChange(
+                      fileField.multiple ? uploaded : (uploaded[0] ?? null)
+                    )
                   } catch (error) {
                     const message =
-                      error instanceof Error ? error.message : "Failed to upload file"
-                    setUploadErrors((prev) => ({ ...prev, [field.name]: message }))
+                      error instanceof Error
+                        ? error.message
+                        : "Failed to upload file"
+                    setUploadErrors((prev) => ({
+                      ...prev,
+                      [field.name]: message,
+                    }))
                   } finally {
-                    setUploadingFields((prev) => ({ ...prev, [field.name]: false }))
+                    setUploadingFields((prev) => ({
+                      ...prev,
+                      [field.name]: false,
+                    }))
                     e.target.value = ""
                   }
                 }}
                 required={field.required && !hasValue}
               />
               {isUploading && (
-                <p className="text-sm text-muted-foreground flex items-center gap-2">
+                <p className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Uploading file... Please wait before submitting.
                 </p>
               )}
-              {uploadError && <p className="text-sm text-destructive">{uploadError}</p>}
+              {uploadError && (
+                <p className="text-sm text-destructive">{uploadError}</p>
+              )}
               {value && (
-                <div className="text-sm text-muted-foreground space-y-1">
+                <div className="space-y-1 text-sm text-muted-foreground">
                   {Array.isArray(value)
                     ? value.map((file: any, index: number) => (
-                        <div key={`${file.url}-${index}`}>{file.name || file.url}</div>
+                        <div key={`${file.url}-${index}`}>
+                          {file.name || file.url}
+                        </div>
                       ))
                     : value.url && <div>{value.name || value.url}</div>}
                 </div>
@@ -542,7 +565,7 @@ export function ShadcnRenderer({
     const formApi = rendererRef.current
     const nav = formApi?.navigation
 
-    console.info('[shorms.shadcn] toolbar submit clicked', {
+    console.info("[shorms.shadcn] toolbar submit clicked", {
       hasFormApi: !!formApi,
       currentPageIndex: nav?.currentPageIndex,
       totalPages: nav?.totalPages,
@@ -552,8 +575,13 @@ export function ShadcnRenderer({
     // Root cause hypothesis 1: stale imperative nav state in the ref.
     // Root cause hypothesis 2: requestSubmit path is being swallowed by custom toolbar flow.
     // Validate by forcing last-page submit from live toolbar state.
-    if (formApi && nav && !nav.isLastPage && nav.currentPageIndex >= nav.totalPages - 1) {
-      console.warn('[shorms.shadcn] correcting stale nav state before submit', {
+    if (
+      formApi &&
+      nav &&
+      !nav.isLastPage &&
+      nav.currentPageIndex >= nav.totalPages - 1
+    ) {
+      console.warn("[shorms.shadcn] correcting stale nav state before submit", {
         currentPageIndex: nav.currentPageIndex,
         totalPages: nav.totalPages,
       })
@@ -612,9 +640,10 @@ export function ShadcnRenderer({
       {totalPages > 0 && (
         <div className="shrink-0 border-t bg-background px-6 py-4">
           {hasActiveUploads && (
-            <div className="text-sm text-muted-foreground mb-3 flex items-center gap-2">
+            <div className="mb-3 flex items-center gap-2 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
-              Files are still uploading. Submit will be enabled once upload is complete.
+              Files are still uploading. Submit will be enabled once upload is
+              complete.
             </div>
           )}
           <div className="flex items-center gap-4">
@@ -642,12 +671,12 @@ export function ShadcnRenderer({
 
             {/* Right: Next button - only show on multi-page forms, not on last page */}
             {showNext && (
-                <Button
-                  type="button"
-                  onClick={nav?.onNext}
-                  disabled={!nav || hasActiveUploads}
-                  className="w-32"
-                >
+              <Button
+                type="button"
+                onClick={nav?.onNext}
+                disabled={!nav || hasActiveUploads}
+                className="w-32"
+              >
                 Next
                 <ChevronRight className="ml-2 h-4 w-4" />
               </Button>
