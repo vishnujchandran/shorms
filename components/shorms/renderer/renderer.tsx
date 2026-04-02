@@ -261,8 +261,15 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
     async (e: React.FormEvent) => {
       e.preventDefault()
 
+      console.info("[shorms] submit clicked", {
+        isLastPage,
+        currentPageIndex,
+        totalPages,
+      })
+
       // Only allow submission on the last page (or single-page forms)
       if (!isLastPage) {
+        console.warn("[shorms] submit blocked: not last page")
         return
       }
 
@@ -271,38 +278,70 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
 
       // Check for blocking errors
       let hasBlockingErrors = false
+      const blockingFields: string[] = []
       allValidation.forEach((result) => {
         if (!result.valid && result.blocking) {
           hasBlockingErrors = true
+          // allValidation is a Map<fieldId, result>
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          const fieldId = (result as any).fieldId || undefined
+          if (fieldId) {
+            blockingFields.push(fieldId)
+          }
         }
       })
 
       if (hasBlockingErrors) {
-        console.warn("Form has validation errors")
+        console.warn("[shorms] submit blocked: validation errors", {
+          blockingFields,
+        })
+        const message =
+          blockingFields.length > 0
+            ? `Missing: ${blockingFields.slice(0, 3).join(", ")}${
+                blockingFields.length > 3 ? "…" : ""
+              }`
+            : undefined
+        toast({
+          title: "Please fill required fields",
+          description: message,
+          duration: 4000,
+        })
         return
       }
 
       // Run cross-field validation
       const crossFieldValidation = await validation.validateCrossField()
+      const crossBlockingFields: string[] = []
       if (crossFieldValidation.size > 0) {
         let hasCrossFieldErrors = false
-        crossFieldValidation.forEach((result) => {
+        crossFieldValidation.forEach((result, fieldId) => {
           if (!result.valid && result.blocking) {
             hasCrossFieldErrors = true
+            crossBlockingFields.push(fieldId)
           }
         })
 
         if (hasCrossFieldErrors) {
-          console.warn("Form has cross-field validation errors")
+          console.warn("[shorms] submit blocked: cross-field errors", {
+            crossBlockingFields,
+          })
+          const message =
+            crossBlockingFields.length > 0
+              ? crossBlockingFields.slice(0, 3).join(", ")
+              : undefined
+          toast({
+            title: "Please fix cross-field errors",
+            description: message,
+            duration: 4000,
+          })
           return
         }
       }
 
       // Submit form
       try {
-        // Aggregate form values per page
+        // Aggregate form values per page (for debugging visibility)
         const aggregatedValues: Record<string, Record<string, any>> = {}
-
         schema.pages.forEach((page, index) => {
           const pageKey = `page${index + 1}`
           aggregatedValues[pageKey] = {}
@@ -312,7 +351,14 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
           })
         })
 
-        await onSubmitRef.current(aggregatedValues)
+        console.info("[shorms] submit passing values", {
+          flatKeys: Object.keys(formState.values || {}),
+          aggregatedPages: Object.keys(aggregatedValues || {}),
+          onSubmitRefSet: !!onSubmitRef.current,
+        })
+
+        // Pass flat values to consumer so top-level keys are preserved
+        await onSubmitRef.current(formState.values)
 
         // Mark as submitted
         // formState.metadata.submittedAt = Date.now()
