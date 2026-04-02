@@ -361,6 +361,15 @@ export interface RendererProps {
   // Core
   schema: ShormsSchema
   onSubmit: (values: FormValues) => void | Promise<void>
+  onFileUpload?: (
+    file: File,
+    field: FormField
+  ) => Promise<{
+    url: string
+    name: string
+    type?: string
+    size?: number
+  }>
 
   // State access
   formStateRef?: React.Ref<FormStateAPI>
