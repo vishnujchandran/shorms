@@ -81,6 +81,11 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
 
   // Ref for form element to allow external submit
   const formElementRef = useRef<HTMLFormElement>(null)
+  const onSubmitRef = useRef(onSubmit)
+
+  useEffect(() => {
+    onSubmitRef.current = onSubmit
+  }, [onSubmit])
 
   // Initialize form state
   const formState = useFormState({
@@ -307,7 +312,7 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
           })
         })
 
-        await onSubmit(aggregatedValues)
+        await onSubmitRef.current(aggregatedValues)
 
         // Mark as submitted
         // formState.metadata.submittedAt = Date.now()
@@ -318,7 +323,6 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
     [
       formState,
       validation,
-      onSubmit,
       currentPageIndex,
       totalPages,
       schema.pages,
