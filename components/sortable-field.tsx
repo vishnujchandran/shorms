@@ -5,15 +5,18 @@ import { CSS } from "@dnd-kit/utilities"
 import { Field, type FieldProps } from "./field"
 
 export const SortableField = React.memo(({ formField, form, onDelete, onEdit }: FieldProps) => {
+  const sortableId = formField.id || formField.name
+
   const {
     attributes,
     listeners,
     setNodeRef,
+    setActivatorNodeRef,
     transform,
     transition,
     isDragging,
   } = useSortable({
-    id: formField.name,
+    id: sortableId,
   })
 
   const style: React.CSSProperties = {
@@ -30,8 +33,9 @@ export const SortableField = React.memo(({ formField, form, onDelete, onEdit }: 
       isDragging={isDragging}
       onDelete={onDelete}
       onEdit={onEdit}
-      {...attributes}
-      {...listeners}
+      dragHandleRef={setActivatorNodeRef}
+      dragHandleAttributes={attributes}
+      dragHandleListeners={listeners}
     />
   )
 })

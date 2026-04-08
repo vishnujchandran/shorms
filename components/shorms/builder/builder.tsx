@@ -2,13 +2,11 @@
 
 import * as React from "react"
 import {
+  closestCenter,
   DndContext,
   DragEndEvent,
   DragOverlay,
   DragStartEvent,
-  PointerSensor,
-  useSensor,
-  useSensors,
 } from "@dnd-kit/core"
 import {
   arrayMove,
@@ -112,14 +110,6 @@ export function Builder({
     setIsMounted(true)
   }, [])
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    })
-  )
-
   const activePage = React.useMemo(
     () => pages.find((p) => p.id === activePageId) || pages[0],
     [pages, activePageId]
@@ -169,11 +159,16 @@ export function Builder({
 
     if (over && active.id !== over.id && activePage && onFieldReorder) {
       const oldIndex = currentFields.findIndex(
-        (field) => field.name === active.id
+        (field) => (field.id || field.name) === active.id
       )
       const newIndex = currentFields.findIndex(
-        (field) => field.name === over.id
+        (field) => (field.id || field.name) === over.id
       )
+
+      if (oldIndex < 0 || newIndex < 0) {
+        setActiveFormField(null)
+        return
+      }
 
       const newFields = arrayMove(currentFields, oldIndex, newIndex)
       onFieldReorder(activePage.id, newFields)
@@ -183,7 +178,9 @@ export function Builder({
 
   function handleDragStart(event: DragStartEvent) {
     const { active } = event
-    const formField = currentFields.find((field) => field.name === active.id)
+    const formField = currentFields.find(
+      (field) => (field.id || field.name) === active.id
+    )
     if (formField) {
       setActiveFormField(formField)
     }
@@ -246,7 +243,7 @@ export function Builder({
         <div className="flex-1 overflow-y-auto">
           {isMounted && features.dragDrop ? (
             <DndContext
-              sensors={sensors}
+              collisionDetection={closestCenter}
               onDragEnd={handleDragEnd}
               onDragStart={handleDragStart}
             >
@@ -257,14 +254,14 @@ export function Builder({
                     className="mx-auto flex w-full max-w-2xl flex-col gap-5 px-4 py-8 md:gap-6 md:px-8 md:py-10"
                   >
                     <SortableContext
-                      items={currentFields.map((formField) => formField.name)}
+                      items={currentFields.map((formField) => formField.id || formField.name)}
                       strategy={verticalListSortingStrategy}
                     >
                       {currentFields.map((formField) => (
                         <SortableField
                           formField={formField}
                           form={form}
-                          key={formField.name}
+                          key={formField.id || formField.name}
                           onDelete={onFieldDelete}
                           onEdit={onFieldEdit}
                         />

@@ -1,4 +1,8 @@
 import * as React from "react"
+import type {
+  DraggableAttributes,
+  DraggableSyntheticListeners,
+} from "@dnd-kit/core"
 import { useFormStore } from "../stores/form"
 import { Check, GripVertical, PenIcon, Trash2 } from "lucide-react"
 import type { UseFormReturn } from "react-hook-form"
@@ -20,6 +24,9 @@ export interface FieldProps {
   isDragging?: boolean
   onDelete?: (fieldId: string) => void
   onEdit?: (fieldId: string) => void
+  dragHandleAttributes?: DraggableAttributes
+  dragHandleListeners?: DraggableSyntheticListeners
+  dragHandleRef?: React.Ref<HTMLButtonElement>
 }
 
 const selector = (state: FormState) => ({
@@ -29,7 +36,20 @@ const selector = (state: FormState) => ({
 })
 
 export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
-  ({ formField, form, style, isDragging, onDelete, onEdit, ...props }, ref) => {
+  (
+    {
+      formField,
+      form,
+      style,
+      isDragging,
+      onDelete,
+      onEdit,
+      dragHandleAttributes,
+      dragHandleListeners,
+      dragHandleRef,
+    },
+    ref
+  ) => {
     const { deleteFormField, setSelectedFormField, setIsEditFormFieldOpen } =
       useFormStore(useShallow(selector))
 
@@ -114,7 +134,7 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
         ref={ref}
       >
         <div className={cn(
-          "absolute -left-12 top-1/2 flex -translate-y-1/2 flex-col gap-1 transition-opacity",
+          "absolute -left-12 top-1/2 z-10 flex -translate-y-1/2 flex-col gap-1 transition-opacity",
           pendingDelete ? "opacity-100" : "opacity-0 group-hover:opacity-100"
         )}>
           <TooltipWrapper text="Edit field">
@@ -160,15 +180,27 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
             }
           />
         </div>
-        <Button
-          size="icon"
-          variant="secondary"
-          type="button"
-          {...props}
-          className="absolute -right-12 top-1/2 h-8 w-8 -translate-y-1/2 opacity-0 transition-opacity hover:bg-primary hover:text-primary-foreground group-hover:opacity-100"
+        <div
+          className="absolute right-0 z-10 opacity-0 transition-opacity group-hover:opacity-100"
+          style={{
+            top: "50%",
+            transform: "translate(calc(100% + 1rem), -50%)",
+          }}
         >
-          <GripVertical className="size-4" />
-        </Button>
+          <Button
+            size="icon"
+            variant="secondary"
+            type="button"
+            ref={dragHandleRef}
+            {...dragHandleAttributes}
+            {...dragHandleListeners}
+            className="h-8 w-8 cursor-grab touch-none border border-border bg-secondary text-foreground shadow-sm hover:bg-primary hover:text-primary-foreground active:cursor-grabbing"
+            aria-label={`Drag to reorder ${formField.label || formField.name}`}
+            title="Drag to reorder"
+          >
+            <GripVertical className="size-4 text-current" />
+          </Button>
+        </div>
       </div>
     )
   }
