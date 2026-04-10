@@ -3,19 +3,18 @@ import type {
   DraggableAttributes,
   DraggableSyntheticListeners,
 } from "@dnd-kit/core"
-import { useFormStore } from "../stores/form"
 import { Check, GripVertical, PenIcon, Trash2 } from "lucide-react"
 import type { UseFormReturn } from "react-hook-form"
 import { useShallow } from "zustand/shallow"
 
 import { cn } from "../lib/utils"
-import { Button } from "./ui/button"
-import { FormField } from "./ui/form"
-import { renderFormFieldComponent } from "./render-form-field-component"
-import { TooltipWrapper } from "./tooltip-wrapper"
-
+import { useFormStore } from "../stores/form"
 import type { FormField as FormFieldType } from "../types/field"
 import { FormState } from "../types/form-store"
+import { renderFormFieldComponent } from "./render-form-field-component"
+import { TooltipWrapper } from "./tooltip-wrapper"
+import { Button } from "./ui/button"
+import { FormField } from "./ui/form"
 
 export interface FieldProps {
   formField: FormFieldType
@@ -133,10 +132,12 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
         style={style}
         ref={ref}
       >
-        <div className={cn(
-          "absolute -left-12 top-1/2 z-10 flex -translate-y-1/2 flex-col gap-1 transition-opacity",
-          pendingDelete ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-        )}>
+        <div
+          className={cn(
+            "absolute -left-12 top-1/2 z-10 flex -translate-y-1/2 flex-col gap-1 transition-opacity",
+            pendingDelete ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+          )}
+        >
           <TooltipWrapper text="Edit field">
             <Button
               size="icon"
@@ -148,7 +149,10 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
               <PenIcon className="size-4" />
             </Button>
           </TooltipWrapper>
-          <TooltipWrapper text={pendingDelete ? "Click again to confirm" : "Delete field"} side="bottom">
+          <TooltipWrapper
+            text={pendingDelete ? "Click again to confirm" : "Delete field"}
+            side="bottom"
+          >
             <Button
               size="icon"
               variant="secondary"
@@ -180,7 +184,7 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
             }
           />
         </div>
-        <div className="pointer-events-auto absolute right-[-44px] top-1/2 z-10 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100">
+        <div className="pointer-events-none absolute right-[-44px] top-1/2 z-10 -translate-y-1/2 opacity-0 transition-opacity">
           <Button
             size="icon"
             variant="secondary"
@@ -188,7 +192,7 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
             ref={dragHandleRef}
             {...dragHandleAttributes}
             {...dragHandleListeners}
-            className="h-8 w-8 cursor-grab touch-none border border-border bg-secondary text-foreground shadow-sm hover:bg-primary hover:text-primary-foreground active:cursor-grabbing"
+            className="hidden h-8 w-8 cursor-grab touch-none border border-border bg-secondary text-foreground shadow-sm hover:bg-primary hover:text-primary-foreground active:cursor-grabbing"
             aria-label={`Drag to reorder ${formField.label || formField.name}`}
             title="Drag to reorder"
           >
