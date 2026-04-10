@@ -8,11 +8,16 @@ import {
   DragOverlay,
   DragOverEvent,
   DragStartEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
 } from "@dnd-kit/core"
 import {
   arrayMove,
   SortableContext,
   verticalListSortingStrategy,
+  sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Plus } from "lucide-react"
@@ -74,6 +79,15 @@ export function Builder({
   const [activeFormField, setActiveFormField] =
     React.useState<FormField | null>(null)
   const lastOverIdRef = React.useRef<string | null>(null)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
 
   const widthClass = typeof width === "string" ? widthClasses[width] : ""
   const widthStyle = typeof width === "number" ? { maxWidth: `${width}px` } : {}
@@ -258,6 +272,7 @@ export function Builder({
           {isMounted && features.dragDrop ? (
             <DndContext
               collisionDetection={closestCenter}
+              sensors={sensors}
               onDragEnd={handleDragEnd}
               onDragOver={handleDragOver}
               onDragStart={handleDragStart}

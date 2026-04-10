@@ -124,7 +124,7 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
     return (
       <div
         className={cn(
-          "group relative flex items-center gap-2 rounded-md border-2 border-dashed border-transparent transition-colors",
+          "group relative flex items-center gap-2 overflow-visible rounded-md border-2 border-dashed border-transparent transition-colors",
           {
             "rounded-md border-foreground bg-muted opacity-60": isDragging,
             "bg-destructive/10": pendingDelete,
@@ -180,7 +180,7 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
             }
           />
         </div>
-        <div className="absolute inset-y-0 left-full z-10 flex items-center pl-4 opacity-0 transition-opacity group-hover:opacity-100">
+        <div className="pointer-events-auto absolute right-[-44px] top-1/2 z-10 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100">
           <Button
             size="icon"
             variant="secondary"
