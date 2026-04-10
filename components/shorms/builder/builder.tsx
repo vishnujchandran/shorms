@@ -6,6 +6,7 @@ import {
   DndContext,
   DragEndEvent,
   DragOverlay,
+  DragOverEvent,
   DragStartEvent,
 } from "@dnd-kit/core"
 import {
@@ -72,6 +73,7 @@ export function Builder({
   const [isMounted, setIsMounted] = React.useState(false)
   const [activeFormField, setActiveFormField] =
     React.useState<FormField | null>(null)
+  const lastOverIdRef = React.useRef<string | null>(null)
 
   const widthClass = typeof width === "string" ? widthClasses[width] : ""
   const widthStyle = typeof width === "number" ? { maxWidth: `${width}px` } : {}
@@ -156,13 +158,17 @@ export function Builder({
   // Handle field drag and drop
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event
+    const activeId = String(active.id)
+    const overId = over?.id ? String(over.id) : lastOverIdRef.current
 
-    if (over && active.id !== over.id && activePage && onFieldReorder) {
+    lastOverIdRef.current = null
+
+    if (overId && activeId !== overId && activePage && onFieldReorder) {
       const oldIndex = currentFields.findIndex(
-        (field) => (field.id || field.name) === active.id
+        (field) => (field.id || field.name) === activeId
       )
       const newIndex = currentFields.findIndex(
-        (field) => (field.id || field.name) === over.id
+        (field) => (field.id || field.name) === overId
       )
 
       if (oldIndex < 0 || newIndex < 0) {
@@ -176,10 +182,18 @@ export function Builder({
     setActiveFormField(null)
   }
 
+  function handleDragOver(event: DragOverEvent) {
+    if (event.over?.id) {
+      lastOverIdRef.current = String(event.over.id)
+    }
+  }
+
   function handleDragStart(event: DragStartEvent) {
+    lastOverIdRef.current = null
     const { active } = event
+    const activeId = String(active.id)
     const formField = currentFields.find(
-      (field) => (field.id || field.name) === active.id
+      (field) => (field.id || field.name) === activeId
     )
     if (formField) {
       setActiveFormField(formField)
@@ -245,6 +259,7 @@ export function Builder({
             <DndContext
               collisionDetection={closestCenter}
               onDragEnd={handleDragEnd}
+              onDragOver={handleDragOver}
               onDragStart={handleDragStart}
             >
               {currentFields.length !== 0 ? (
@@ -292,7 +307,7 @@ export function Builder({
                 {currentFields.map((formField) => (
                   <Field
                     formField={formField}
-                    key={formField.name}
+                    key={formField.id || formField.name}
                     onDelete={onFieldDelete}
                     onEdit={onFieldEdit}
                   />

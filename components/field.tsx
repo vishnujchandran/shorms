@@ -180,13 +180,7 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
             }
           />
         </div>
-        <div
-          className="absolute right-0 z-10 opacity-0 transition-opacity group-hover:opacity-100"
-          style={{
-            top: "50%",
-            transform: "translate(calc(100% + 1rem), -50%)",
-          }}
-        >
+        <div className="absolute inset-y-0 left-full z-10 flex items-center pl-4 opacity-0 transition-opacity group-hover:opacity-100">
           <Button
             size="icon"
             variant="secondary"
