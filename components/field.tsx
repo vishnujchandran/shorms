@@ -123,7 +123,7 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
     return (
       <div
         className={cn(
-          "group relative flex items-center gap-2 overflow-visible rounded-md border-2 border-dashed border-transparent transition-colors",
+          "group relative overflow-visible rounded-md border-2 border-dashed border-transparent transition-colors",
           {
             "rounded-md border-foreground bg-muted opacity-60": isDragging,
             "bg-destructive/10": pendingDelete,
@@ -132,6 +132,16 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
         style={style}
         ref={ref}
       >
+        <div className="min-w-0 w-full">
+          <FormField
+            control={form?.control}
+            name={formField.name}
+            render={({ field }) =>
+              renderFormFieldComponent({ field, formField })
+            }
+          />
+        </div>
+
         <div
           className={cn(
             "absolute -left-12 top-1/2 z-10 flex -translate-y-1/2 flex-col gap-1 transition-opacity",
@@ -175,16 +185,8 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
             </Button>
           </TooltipWrapper>
         </div>
-        <div className="w-full">
-          <FormField
-            control={form?.control}
-            name={formField.name}
-            render={({ field }) =>
-              renderFormFieldComponent({ field, formField })
-            }
-          />
-        </div>
-        <div className="pointer-events-none absolute right-[-44px] top-1/2 z-10 -translate-y-1/2 opacity-0 transition-opacity">
+
+        <div className="absolute -right-12 top-1/2 z-10 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100">
           <Button
             size="icon"
             variant="secondary"
@@ -192,7 +194,7 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
             ref={dragHandleRef}
             {...dragHandleAttributes}
             {...dragHandleListeners}
-            className="hidden h-8 w-8 cursor-grab touch-none border border-border bg-secondary text-foreground shadow-sm hover:bg-primary hover:text-primary-foreground active:cursor-grabbing"
+            className="h-8 w-8 cursor-grab touch-none border border-border bg-secondary text-foreground shadow-sm hover:bg-primary hover:text-primary-foreground active:cursor-grabbing"
             aria-label={`Drag to reorder ${formField.label || formField.name}`}
             title="Drag to reorder"
           >
