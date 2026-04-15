@@ -51,6 +51,9 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
   ) => {
     const { deleteFormField, setSelectedFormField, setIsEditFormFieldOpen } =
       useFormStore(useShallow(selector))
+    const hasDragHandle = Boolean(
+      dragHandleRef || dragHandleAttributes || dragHandleListeners
+    )
 
     const [pendingDelete, setPendingDelete] = React.useState(false)
     const timeoutRef = React.useRef<NodeJS.Timeout | null>(null)
@@ -132,7 +135,7 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
         style={style}
         ref={ref}
       >
-        <div className="min-w-0 w-full">
+        <div className={cn("w-full min-w-0", hasDragHandle && "pr-12 md:pr-0")}>
           <FormField
             control={form?.control}
             name={formField.name}
@@ -154,7 +157,7 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
               variant="secondary"
               onClick={handleEdit}
               type="button"
-              className="h-8 w-8 hover:bg-primary hover:text-primary-foreground"
+              className="h-8 w-8 cursor-pointer hover:bg-primary hover:text-primary-foreground"
             >
               <PenIcon className="size-4" />
             </Button>
@@ -171,7 +174,7 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
               onMouseEnter={handleDeleteMouseEnter}
               type="button"
               className={cn(
-                "h-8 w-8 transition-colors",
+                "h-8 w-8 cursor-pointer transition-colors",
                 pendingDelete
                   ? "bg-destructive text-destructive-foreground hover:bg-destructive hover:text-destructive-foreground"
                   : "hover:bg-destructive hover:text-destructive-foreground"
@@ -186,21 +189,23 @@ export const Field = React.forwardRef<HTMLDivElement, FieldProps>(
           </TooltipWrapper>
         </div>
 
-        <div className="absolute -right-12 top-1/2 z-10 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100">
-          <Button
-            size="icon"
-            variant="secondary"
-            type="button"
-            ref={dragHandleRef}
-            {...dragHandleAttributes}
-            {...dragHandleListeners}
-            className="h-8 w-8 cursor-grab touch-none border border-border bg-secondary text-foreground shadow-sm hover:bg-primary hover:text-primary-foreground active:cursor-grabbing"
-            aria-label={`Drag to reorder ${formField.label || formField.name}`}
-            title="Drag to reorder"
-          >
-            <GripVertical className="size-4 text-current" />
-          </Button>
-        </div>
+        {hasDragHandle ? (
+          <div className="absolute right-0 top-1/2 z-10 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100 md:-right-12">
+            <Button
+              size="icon"
+              variant="secondary"
+              type="button"
+              ref={dragHandleRef}
+              {...dragHandleAttributes}
+              {...dragHandleListeners}
+              className="h-8 w-8 cursor-grab touch-none border border-border bg-secondary text-foreground shadow-sm hover:bg-primary hover:text-primary-foreground active:cursor-grabbing"
+              aria-label={`Drag to reorder ${formField.label || formField.name}`}
+              title="Drag to reorder"
+            >
+              <GripVertical className="size-4 text-current" />
+            </Button>
+          </div>
+        ) : null}
       </div>
     )
   }
