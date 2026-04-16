@@ -14,8 +14,6 @@ import React, {
   useState,
 } from "react"
 
-import { toast } from "@/hooks/use-toast"
-
 import type { FormField, FormPage, RendererProps } from "./types"
 import { useBackgroundJob } from "./use-background-job"
 import { useFormState } from "./use-form-state"
@@ -276,17 +274,7 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
         }
       })
 
-      // Show a toast with a short message and optional list of first few fields
-      toast({
-        title: "Please fill required fields",
-        description:
-          missingFields.length > 0
-            ? `Missing: ${missingFields.slice(0, 3).join(", ")}${
-                missingFields.length > 3 ? "…" : ""
-              }`
-            : undefined,
-        duration: 4000,
-      })
+      console.warn("[shorms] next page blocked: required fields missing", { missingFields })
       return
     }
 
@@ -360,11 +348,7 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
                 blockingFields.length > 3 ? "…" : ""
               }`
             : undefined
-        toast({
-          title: "Please fill required fields",
-          description: message,
-          duration: 4000,
-        })
+        console.warn("[shorms] submit validation blocked", { message })
         return
       }
 
@@ -388,11 +372,7 @@ export const Renderer = React.forwardRef<any, RendererProps>((props, ref) => {
             crossBlockingFields.length > 0
               ? crossBlockingFields.slice(0, 3).join(", ")
               : undefined
-          toast({
-            title: "Please fix cross-field errors",
-            description: message,
-            duration: 4000,
-          })
+          console.warn("[shorms] submit cross-field validation blocked", { message })
           return
         }
       }
